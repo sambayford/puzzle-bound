@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PUZZLEBOUND</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap');
+
+  :root {
+    --bg: #0a0812;
+    --bg2: #110f1a;
+    --panel: #1a1628;
+    --border: #3d2f6e;
+    --border2: #5a4a9a;
+    --gold: #c9a84c;
+    --gold2: #f0d080;
+    --text: #e8dfc8;
+    --muted: #8a7fa8;
+    --accent: #7b4fcf;
+    --accent2: #a06bff;
+    --red: #c0392b;
+    --green: #27ae60;
+    --blue: #2980b9;
+    --fire: #e67e22;
+    --shadow: #6b2fa0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', serif;
+    font-size: 16px;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(ellipse at 20% 20%, rgba(123,79,207,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(74,20,140,0.1) 0%, transparent 60%);
+  }
+
+  h1, h2, h3, .title-font {
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ── HEADER ── */
+  #header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  #header h1 {
+    font-size: 1.3rem;
+    color: var(--gold);
+    text-shadow: 0 0 20px rgba(201,168,76,0.4);
+  }
+  #header-info {
+    display: flex;
+    gap: 16px;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  #header-info span { color: var(--gold2); }
+
+  /* ── TITLE SCREEN ── */
+  #title-screen {
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    text-align: center;
+    padding: 40px 20px;
+    gap: 32px;
+  }
+  .title-emblem {
+    font-size: 5rem;
+    filter: drop-shadow(0 0 30px rgba(160,107,255,0.6));
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+  @keyframes pulse-glow {
+    0%,100% { filter: drop-shadow(0 0 20px rgba(160,107,255,0.4)); }
+    50% { filter: drop-shadow(0 0 40px rgba(160,107,255,0.8)); }
+  }
+  .title-main {
+    font-size: clamp(2.5rem, 8vw, 4rem);
+    color: var(--gold);
+    text-shadow: 0 0 40px rgba(201,168,76,0.5);
+    line-height: 1;
+  }
+  .title-sub {
+    font-size: 1rem;
+    color: var(--muted);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+  }
+  .title-desc {
+    max-width: 480px;
+    color: var(--text);
+    font-size: 1.1rem;
+    line-height: 1.7;
+    font-style: italic;
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    padding: 10px 24px;
+    border: 1px solid var(--border2);
+    background: linear-gradient(135deg, rgba(123,79,207,0.2), rgba(74,20,140,0.3));
+    color: var(--gold2);
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 2px;
+    text-transform: uppercase;
+  }
+  .btn:hover {
+    background: linear-gradient(135deg, rgba(123,79,207,0.5), rgba(74,20,140,0.6));
+    border-color: var(--gold);
+    color: var(--gold2);
+    box-shadow: 0 0 15px rgba(201,168,76,0.2);
+  }
+  .btn-large { font-size: 1rem; padding: 14px 40px; }
+  .btn-danger { border-color: var(--red); color: #e57373; }
+  .btn-danger:hover { background: rgba(192,57,43,0.3); border-color: #e57373; color: #ff8a80; }
+  .btn-success { border-color: var(--green); color: #81c784; }
+  .btn-success:hover { background: rgba(39,174,96,0.3); }
+
+  /* ── WORLD MAP ── */
+  #map-screen {
+    flex: 1;
+    padding: 20px;
+    gap: 20px;
+  }
+  .map-title {
+    font-size: 1rem;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .zones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  .zone-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .zone-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .zone-card:hover { border-color: var(--border2); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+  .zone-card:hover::before { opacity: 1; }
+  .zone-card.locked { opacity: 0.4; cursor: not-allowed; }
+  .zone-card.locked:hover { transform: none; box-shadow: none; }
+  .zone-icon { font-size: 2.5rem; margin-bottom: 10px; }
+  .zone-name { font-family: 'Cinzel', serif; font-size: 0.9rem; color: var(--gold); margin-bottom: 6px; }
+  .zone-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+  .zone-badge { font-size: 0.75rem; color: var(--border2); margin-top: 8px; }
+
+  /* ── BOTTOM NAV ── */
+  #bottom-nav {
+    display: flex;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+  }
+  .nav-btn {
+    flex: 1;
+    padding: 12px 4px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.2s;
+  }
+  .nav-btn .nav-icon { font-size: 1.2rem; }
+  .nav-btn.active, .nav-btn:hover { color: var(--gold2); }
+
+  /* ── COLLECTION ── */
+  #collection-screen { flex: 1; padding: 20px; gap: 16px; overflow-y: auto; }
+  .collection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 12px;
+  }
+  .creature-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 14px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .creature-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+  .creature-card.selected { border-color: var(--gold); box-shadow: 0 0 12px rgba(201,168,76,0.3); }
+  .creature-card.empty { opacity: 0.3; cursor: default; }
+  .creature-card.empty:hover { transform: none; }
+  .c-icon { font-size: 2.2rem; margin-bottom: 6px; }
+  .c-name { font-family: 'Cinzel', serif; font-size: 0.7rem; color: var(--gold2); }
+  .c-level { font-size: 0.75rem; color: var(--muted); }
+  .c-type-badge {
+    display: inline-block;
+    font-size: 0.6rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-top: 4px;
+    letter-spacing: 0.05em;
+  }
+  .type-arcane { background: rgba(123,79,207,0.3); color: #b39ddb; border: 1px solid rgba(123,79,207,0.5); }
+  .type-flame  { background: rgba(230,126,34,0.3);  color: #ffb74d; border: 1px solid rgba(230,126,34,0.5); }
+  .type-tide   { background: rgba(41,128,185,0.3);  color: #81d4fa; border: 1px solid rgba(41,128,185,0.5); }
+  .type-stone  { background: rgba(127,140,141,0.3); color: #b0bec5; border: 1px solid rgba(127,140,141,0.5); }
+  .type-wisp   { background: rgba(39,174,96,0.3);   color: #a5d6a7; border: 1px solid rgba(39,174,96,0.5); }
+
+  /* ── PUZZLE MODAL ── */
+  #puzzle-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(5,3,15,0.92);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  #puzzle-overlay.open { display: flex; }
+  #puzzle-box {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 24px;
+    max-width: 480px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 0 60px rgba(123,79,207,0.3);
+  }
+  .puzzle-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  .puzzle-title { font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--gold); }
+  .puzzle-subtitle { font-size: 0.85rem; color: var(--muted); margin-top: 4px; }
+  .puzzle-target {
+    text-align: center;
+    font-size: 3rem;
+    margin: 16px 0 8px;
+    filter: drop-shadow(0 0 20px rgba(160,107,255,0.5));
+  }
+  .puzzle-creature-name { text-align: center; font-family:'Cinzel',serif; color: var(--gold2); font-size:1rem; margin-bottom:20px; }
+
+  /* Sequence puzzle */
+  .seq-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .seq-cell {
+    width: 44px; height: 44px;
+    background: var(--panel);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Cinzel', serif;
+    color: var(--text);
+  }
+  .seq-cell.answer-slot {
+    background: rgba(123,79,207,0.15);
+    border-color: var(--accent2);
+    cursor: default;
+  }
+  .seq-cell.filled { color: var(--gold2); border-color: var(--gold); }
+  .seq-cell.wrong { border-color: var(--red); color: #e57373; animation: shake 0.3s; }
+  .seq-cell.correct { border-color: var(--green); color: #81c784; }
+
+  /* Grid puzzle */
+  .grid-puzzle {
+    display: grid;
+    gap: 3px;
+    margin: 0 auto 16px;
+    max-width: 280px;
+  }
+  .grid-cell {
+    aspect-ratio: 1;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    user-select: none;
+    font-family: 'Cinzel', serif;
+    color: var(--text);
+  }
+  .grid-cell.given { background: rgba(123,79,207,0.2); cursor: default; color: var(--accent2); }
+  .grid-cell.selected-cell { border-color: var(--gold); }
+  .grid-cell.correct { background: rgba(39,174,96,0.2); color: #81c784; }
+  .grid-cell.wrong { background: rgba(192,57,43,0.2); color: #e57373; }
+
+  /* Number buttons */
+  .num-pad {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .num-btn {
+    width: 40px; height: 40px;
+    background: var(--panel);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'Cinzel', serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .num-btn:hover { background: rgba(123,79,207,0.3); border-color: var(--accent2); }
+
+  .puzzle-hint { font-size: 0.9rem; color: var(--muted); font-style: italic; margin-bottom: 16px; text-align:center; }
+  .puzzle-actions { display: flex; gap: 10px; justify-content: center; flex-wrap:wrap; }
+  .puzzle-feedback {
+    text-align: center;
+    font-size: 0.9rem;
+    padding: 8px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+  .feedback-success { background: rgba(39,174,96,0.2); color: #81c784; }
+  .feedback-fail { background: rgba(192,57,43,0.2); color: #e57373; }
+
+  /* Tries */
+  .tries-display {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+  .try-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--border2);
+  }
+  .try-dot.used { background: var(--red); }
+
+  /* ── BATTLE ── */
+  #battle-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(5,3,15,0.95);
+    z-index: 300;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    gap: 12px;
+  }
+  #battle-overlay.open { display: flex; }
+  .battle-title { font-family:'Cinzel',serif; font-size:1.1rem; color:var(--gold); text-align:center; margin-top:8px; }
+  .battle-arena {
+    width: 100%;
+    max-width: 480px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px;
+    box-shadow: 0 0 40px rgba(123,79,207,0.2);
+  }
+  .combatant {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+  .combatant-icon { font-size: 2.5rem; }
+  .combatant-info { flex: 1; }
+  .combatant-name { font-family:'Cinzel',serif; font-size:0.85rem; color:var(--gold2); }
+  .hp-bar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 6px; overflow:hidden; }
+  .hp-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+  .hp-fill.mine { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+  .hp-fill.enemy { background: linear-gradient(90deg, #c0392b, #e74c3c); }
+  .hp-text { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+  .vs-divider { text-align:center; font-family:'Cinzel',serif; color:var(--border2); margin:8px 0; }
+  .battle-log {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    min-height: 60px;
+    max-height: 100px;
+    overflow-y: auto;
+    line-height: 1.6;
+    font-style: italic;
+  }
+  .battle-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:8px; }
+  .battle-puzzle-prompt {
+    text-align:center;
+    font-size:0.9rem;
+    color:var(--accent2);
+    font-style:italic;
+    padding: 6px;
+  }
+  .battle-phase-title {
+    font-family:'Cinzel',serif;
+    font-size:0.8rem;
+    text-align:center;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:0.15em;
+    margin-bottom:8px;
+  }
+
+  /* Quick battle puzzle (sequence) */
+  .battle-seq {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 10px 0;
+  }
+  .battle-seq .seq-cell { width:38px; height:38px; font-size:1rem; }
+
+  /* Animations */
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+  @keyframes flyIn {
+    from { opacity:0; transform:scale(0.7) translateY(20px); }
+    to   { opacity:1; transform:scale(1) translateY(0); }
+  }
+  .fly-in { animation: flyIn 0.35s ease; }
+
+  @keyframes damage-flash {
+    0%,100% { opacity:1; }
+    50% { opacity:0.3; }
+  }
+  .damage-anim { animation: damage-flash 0.3s ease; }
+
+  /* Capture animation */
+  @keyframes capture-spin {
+    0%   { transform:scale(1) rotate(0deg); }
+    50%  { transform:scale(1.3) rotate(180deg); }
+    100% { transform:scale(1) rotate(360deg); }
+  }
+  .capture-anim { animation: capture-spin 0.6s ease; }
+
+  .separator {
+    border: none;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Pokedex-style detail */
+  #detail-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(5,3,15,0.92);
+    z-index: 150;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  #detail-overlay.open { display: flex; }
+  #detail-box {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 24px;
+    max-width: 360px;
+    width: 100%;
+    box-shadow: 0 0 50px rgba(123,79,207,0.3);
+  }
+  .detail-icon { font-size:4rem; text-align:center; margin-bottom:10px; }
+  .detail-name { font-family:'Cinzel',serif; font-size:1.2rem; color:var(--gold); text-align:center; }
+  .detail-flavor { font-size:0.9rem; color:var(--muted); font-style:italic; text-align:center; margin:10px 0 16px; line-height:1.6; }
+  .detail-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
+  .detail-stat { background:var(--panel); border:1px solid var(--border); border-radius:4px; padding:8px; }
+  .detail-stat-label { font-size:0.7rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; }
+  .detail-stat-value { font-family:'Cinzel',serif; font-size:1rem; color:var(--gold2); }
+
+  /* Notification toast */
+  #toast {
+    position: fixed;
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--panel);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    color: var(--gold2);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+  #toast.visible { opacity: 1; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ═══════════ TITLE SCREEN ═══════════ -->
+<div id="title-screen" class="screen active">
+  <div class="title-emblem">🌀</div>
+  <div>
+    <h1 class="title-main">PUZZLEBOUND</h1>
+    <p class="title-sub">Collect · Solve · Conquer</p>
+  </div>
+  <p class="title-desc">
+    Magical creatures are bound by ancient logic. Prove your mind worthy,
+    and they shall serve you. Fail, and face the void.
+  </p>
+  <button class="btn btn-large" onclick="startGame()">Begin Journey</button>
+  <p style="color:var(--muted);font-size:0.85rem;max-width:340px;text-align:center;line-height:1.6;">
+    Capture creatures by solving logic puzzles. Build your party and defeat rival Puzzlemasters.
+  </p>
+</div>
+
+<!-- ═══════════ MAIN GAME ═══════════ -->
+<div id="main-wrapper" style="display:none;flex-direction:column;min-height:100vh;">
+
+  <!-- Header -->
+  <div id="header">
+    <h1>PUZZLEBOUND</h1>
+    <div id="header-info">
+      <span id="hdr-party">Party: <span id="hdr-party-count">0</span>/3</span>
+      <span id="hdr-gold">Essence: <span id="hdr-gold-val">0</span></span>
+    </div>
+  </div>
+
+  <!-- Screens -->
+  <div id="map-screen" class="screen active" style="flex:1;overflow-y:auto;">
+    <div class="map-title">World Map — Choose a Zone</div>
+    <div class="zones-grid" id="zones-grid"></div>
+  </div>
+
+  <div id="collection-screen" class="screen" style="flex:1;overflow-y:auto;">
+    <div class="map-title">Your Bestiary</div>
+    <div class="collection-grid" id="collection-grid"></div>
+    <div id="collection-empty" style="text-align:center;color:var(--muted);font-style:italic;padding:40px;display:none;">
+      No creatures yet. Venture into zones to capture them.
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div id="bottom-nav">
+    <button class="nav-btn active" onclick="switchTab('map-screen',this)">
+      <span class="nav-icon">🗺️</span>Map
+    </button>
+    <button class="nav-btn" onclick="switchTab('collection-screen',this)">
+      <span class="nav-icon">📖</span>Bestiary
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════ PUZZLE OVERLAY ═══════════ -->
+<div id="puzzle-overlay">
+  <div id="puzzle-box">
+    <div class="puzzle-header">
+      <div>
+        <div class="puzzle-title" id="puzzle-title">Wild Encounter!</div>
+        <div class="puzzle-subtitle" id="puzzle-subtitle">Solve to capture</div>
+      </div>
+      <button class="btn btn-danger" onclick="closePuzzle()" style="padding:6px 12px;font-size:0.75rem;">Flee</button>
+    </div>
+    <div id="puzzle-creature-display">
+      <div class="puzzle-target" id="puzzle-target-icon">❓</div>
+      <div class="puzzle-creature-name" id="puzzle-creature-name">???</div>
+    </div>
+    <div class="tries-display" id="tries-display"></div>
+    <div id="puzzle-feedback" class="puzzle-feedback" style="display:none;"></div>
+    <div id="puzzle-hint" class="puzzle-hint"></div>
+    <div id="puzzle-content"></div>
+    <div class="puzzle-actions" id="puzzle-actions"></div>
+  </div>
+</div>
+
+<!-- ═══════════ BATTLE OVERLAY ═══════════ -->
+<div id="battle-overlay">
+  <div class="battle-title" id="battle-title">⚔️ Puzzlemaster Challenge</div>
+  <div class="battle-arena" id="battle-arena">
+    <!-- filled dynamically -->
+  </div>
+  <div id="battle-puzzle-area" style="width:100%;max-width:480px;"></div>
+</div>
+
+<!-- ═══════════ DETAIL OVERLAY ═══════════ -->
+<div id="detail-overlay">
+  <div id="detail-box">
+    <div class="detail-icon" id="detail-icon"></div>
+    <div class="detail-name" id="detail-name"></div>
+    <div class="detail-flavor" id="detail-flavor"></div>
+    <div class="detail-stats" id="detail-stats"></div>
+    <div style="display:flex;gap:8px;justify-content:center;">
+      <button class="btn" onclick="closeDetail()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+//  DATA
+// ════════════════════════════════════════
+
+const CREATURES = [
+  { id:'lumox',   name:'Lumox',   icon:'🦋', type:'arcane', hp:28, atk:10, flavor:'A moth drawn to ancient runes, its wings pulse with stored equations.', lore:'Sequence Adept' },
+  { id:'pyrix',   name:'Pyrix',   icon:'🦊', type:'flame',  hp:30, atk:12, flavor:'A fox of ember and logic, it ignites only for those who understand order.', lore:'Pattern Weaver' },
+  { id:'aquox',   name:'Aquox',   icon:'🐙', type:'tide',   hp:35, atk:8,  flavor:'Eight arms, each counting in a different base. Its ink rewrites logic.', lore:'Grid Master' },
+  { id:'stonyx',  name:'Stonyx',  icon:'🦔', type:'stone',  hp:40, atk:7,  flavor:'A living stone that only moves when the world around it makes sense.', lore:'Steady Solver' },
+  { id:'vexwing', name:'Vexwing', icon:'🦅', type:'wisp',   hp:22, atk:15, flavor:'Faster than thought, it challenges the mind before the eye can follow.', lore:'Speed Thinker' },
+  { id:'glimmer', name:'Glimmer', icon:'✨', type:'arcane', hp:24, atk:11, flavor:'A spark of pure deduction made manifest, born in a scholar\'s epiphany.', lore:'Logic Born' },
+  { id:'torchid', name:'Torchid', icon:'🐲', type:'flame',  hp:32, atk:14, flavor:'An orchid-dragon hybrid. Its fire blooms only when fed correct answers.', lore:'Flame Thinker' },
+  { id:'tidalyn', name:'Tidalyn', icon:'🐬', type:'tide',   hp:33, atk:10, flavor:'Sings in prime numbers. Its sonar maps the logic grid of the sea.', lore:'Sonic Solver' },
+  { id:'mosswyn', name:'Mosswyn', icon:'🌿', type:'wisp',   hp:28, atk:9,  flavor:'A moss-spirit that grows through the cracks of incomplete arguments.', lore:'Growth Mind' },
+  { id:'cryston', name:'Cryston', icon:'💎', type:'stone',  hp:38, atk:8,  flavor:'Its facets refract truth. Each face a different logical proposition.', lore:'Prism Logic' },
+  { id:'zephrix', name:'Zephrix', icon:'🌪️', type:'wisp',   hp:20, atk:16, flavor:'A wind that blows only if the pattern is complete. Unpredictable, precise.', lore:'Chaos Solver' },
+  { id:'embrix',  name:'Embrix',  icon:'🦁', type:'flame',  hp:36, atk:13, flavor:'A lion of living ember. Its roar is a theorem, its silence a paradox.', lore:'Logic Lion' },
+];
+
+const ZONES = [
+  {
+    id:'forest', name:'Whispering Forest', icon:'🌲',
+    desc:'Ancient trees that murmur sequences. Gentle creatures dwell here.',
+    creatures:['lumox','pyrix','mosswyn'],
+    locked:false,
+    puzzleTypes:['sequence','binary'],
+    boss:{ name:'Herbalist Vera', icon:'🧙‍♀️', creature:'stonyx' }
+  },
+  {
+    id:'coast', name:'Riddle Coast', icon:'🌊',
+    desc:'Where tide meets logic. Aquatic puzzlemasters test all who pass.',
+    creatures:['aquox','tidalyn','glimmer'],
+    locked:true,
+    requires:'forest',
+    puzzleTypes:['grid','sequence'],
+    boss:{ name:'Tide Oracle', icon:'🧜', creature:'tidalyn' }
+  },
+  {
+    id:'volcano', name:'Volcano Peak', icon:'🌋',
+    desc:'Only the sharpest minds survive the heat of its logic trials.',
+    creatures:['torchid','embrix','vexwing'],
+    locked:true,
+    requires:'coast',
+    puzzleTypes:['grid','sequence'],
+    boss:{ name:'Pyromaster Dax', icon:'🧟', creature:'embrix' }
+  },
+  {
+    id:'crystal', name:'Crystal Caverns', icon:'💠',
+    desc:'The deepest puzzles. Strange creatures of pure logic await.',
+    creatures:['cryston','zephrix','stonyx'],
+    locked:true,
+    requires:'volcano',
+    puzzleTypes:['grid','sequence'],
+    boss:{ name:'The Void Sage', icon:'👁️', creature:'cryston' }
+  },
+];
+
+// ════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════
+
+let state = {
+  collection: [],    // { creatureId, level, hp, maxHp }
+  party: [],         // up to 3 creature IDs from collection
+  essence: 0,
+  clearedZones: [],
+  bossDefeated: [],
+};
+
+// ════════════════════════════════════════
+//  GAME INIT
+// ════════════════════════════════════════
+
+function startGame() {
+  document.getElementById('title-screen').classList.remove('active');
+  document.getElementById('main-wrapper').style.display = 'flex';
+  renderZones();
+  updateHeader();
+}
+
+function switchTab(screenId, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (screenId === 'collection-screen') renderCollection();
+}
+
+function updateHeader() {
+  document.getElementById('hdr-party-count').textContent = state.party.length;
+  document.getElementById('hdr-gold-val').textContent = state.essence;
+}
+
+// ════════════════════════════════════════
+//  ZONES
+// ════════════════════════════════════════
+
+function renderZones() {
+  const grid = document.getElementById('zones-grid');
+  grid.innerHTML = '';
+  ZONES.forEach(zone => {
+    const isLocked = zone.locked && !state.clearedZones.includes(zone.requires);
+    const bossDefeated = state.bossDefeated.includes(zone.id);
+    const div = document.createElement('div');
+    div.className = 'zone-card' + (isLocked ? ' locked' : '');
+    div.innerHTML = `
+      <div class="zone-icon">${zone.icon}</div>
+      <div class="zone-name">${zone.name}</div>
+      <div class="zone-desc">${zone.desc}</div>
+      <div class="zone-badge">${isLocked ? '🔒 Clear previous zone' : bossDefeated ? '✅ Cleared' : '⚡ Available'}</div>
+    `;
+    if (!isLocked) div.onclick = () => enterZone(zone);
+    grid.appendChild(div);
+  });
+}
+
+function enterZone(zone) {
+  // Pick random creature from zone
+  const cId = zone.creatures[Math.floor(Math.random() * zone.creatures.length)];
+  const creature = CREATURES.find(c => c.id === cId);
+  const alreadyOwn = state.collection.find(e => e.creatureId === cId);
+
+  // Show zone menu
+  showZoneMenu(zone, creature, alreadyOwn);
+}
+
+function showZoneMenu(zone, creature, alreadyOwn) {
+  // Build puzzle overlay with zone menu first
+  openPuzzleOverlay();
+  document.getElementById('puzzle-title').textContent = zone.name;
+  document.getElementById('puzzle-subtitle').textContent = 'What will you do?';
+  document.getElementById('puzzle-target-icon').textContent = zone.icon;
+  document.getElementById('puzzle-creature-name').textContent = '';
+  document.getElementById('puzzle-hint').textContent = '';
+  document.getElementById('puzzle-feedback').style.display = 'none';
+  document.getElementById('tries-display').innerHTML = '';
+
+  let html = `<p style="color:var(--muted);font-size:0.9rem;margin-bottom:16px;font-style:italic;">
+    A wild <strong style="color:var(--gold2)">${creature.name}</strong> ${creature.icon} stirs in the ${zone.name}.
+    ${alreadyOwn ? '<br><em style="color:var(--border2);">(Already in bestiary)</em>' : ''}
+  </p>`;
+  document.getElementById('puzzle-content').innerHTML = html;
+
+  const actions = document.getElementById('puzzle-actions');
+  actions.innerHTML = '';
+  const captureBtn = document.createElement('button');
+  captureBtn.className = 'btn btn-success';
+  captureBtn.textContent = `🎯 Capture ${creature.name}`;
+  captureBtn.onclick = () => startCapturePuzzle(creature, zone);
+  actions.appendChild(captureBtn);
+
+  if (!state.bossDefeated.includes(zone.id) && state.party.length > 0) {
+    const bossBtn = document.createElement('button');
+    bossBtn.className = 'btn';
+    bossBtn.textContent = `⚔️ Challenge ${zone.boss.name}`;
+    bossBtn.onclick = () => { closePuzzle(); startBattle(zone); };
+    actions.appendChild(bossBtn);
+  }
+}
+
+// ════════════════════════════════════════
+//  PUZZLE ENGINE
+// ════════════════════════════════════════
+
+let puzzleState = null;
+
+function openPuzzleOverlay() {
+  document.getElementById('puzzle-overlay').classList.add('open');
+}
+function closePuzzle() {
+  document.getElementById('puzzle-overlay').classList.remove('open');
+  puzzleState = null;
+}
+
+function startCapturePuzzle(creature, zone) {
+  const type = zone.puzzleTypes[Math.floor(Math.random() * zone.puzzleTypes.length)];
+  openCaptureFlow(creature, type);
+}
+
+function openCaptureFlow(creature, puzzleType) {
+  document.getElementById('puzzle-title').textContent = 'Wild Encounter!';
+  document.getElementById('puzzle-subtitle').textContent = `Solve the ${puzzleType} puzzle to capture`;
+  document.getElementById('puzzle-target-icon').textContent = creature.icon;
+  document.getElementById('puzzle-creature-name').textContent = creature.name;
+  document.getElementById('puzzle-feedback').style.display = 'none';
+  document.getElementById('puzzle-actions').innerHTML = '';
+
+  const triesMax = 3;
+  puzzleState = { creature, type: puzzleType, tries: 0, triesMax, solved: false };
+  renderTries();
+  generatePuzzle(puzzleType);
+}
+
+function renderTries() {
+  const d = document.getElementById('tries-display');
+  d.innerHTML = '';
+  for (let i=0; i<puzzleState.triesMax; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'try-dot' + (i < puzzleState.tries ? ' used' : '');
+    d.appendChild(dot);
+  }
+}
+
+function showFeedback(msg, success) {
+  const fb = document.getElementById('puzzle-feedback');
+  fb.textContent = msg;
+  fb.className = 'puzzle-feedback ' + (success ? 'feedback-success' : 'feedback-fail');
+  fb.style.display = 'block';
+}
+
+// ── SEQUENCE PUZZLE ──
+function generatePuzzle(type) {
+  if (type === 'sequence' || type === 'binary') {
+    generateSequencePuzzle();
+  } else {
+    generateGridPuzzle();
+  }
+}
+
+function generateSequencePuzzle() {
+  // Generate arithmetic or geometric sequence with one blank
+  const ops = [
+    () => { // arithmetic
+      const start = Math.floor(Math.random()*5)+1;
+      const step  = Math.floor(Math.random()*4)+2;
+      const seq = [start, start+step, start+step*2, start+step*3, start+step*4];
+      const blankIdx = 2 + Math.floor(Math.random()*3);
+      return { seq, blankIdx, hint:`Each number increases by ${step}` };
+    },
+    () => { // multiply
+      const start = Math.floor(Math.random()*2)+1;
+      const mult = 2 + Math.floor(Math.random()*2);
+      const seq = [start, start*mult, start*mult*mult, start*mult**3, start*mult**4];
+      const blankIdx = 1 + Math.floor(Math.random()*3);
+      return { seq, blankIdx, hint:`Each number is multiplied by ${mult}` };
+    },
+    () => { // Fibonacci-like
+      const a = Math.floor(Math.random()*3)+1;
+      const b = Math.floor(Math.random()*3)+2;
+      const seq = [a, b, a+b, a+b+b, b+a+b+a+b];
+      seq[3] = seq[2]+seq[1]; seq[4] = seq[3]+seq[2];
+      const blankIdx = 1 + Math.floor(Math.random()*3);
+      return { seq, blankIdx, hint:'Each number is the sum of the two before it' };
+    },
+    () => { // subtract pattern
+      const start = Math.floor(Math.random()*10)+15;
+      const step = Math.floor(Math.random()*3)+2;
+      const seq = [start, start-step, start-step*2, start-step*3, start-step*4];
+      const blankIdx = 1 + Math.floor(Math.random()*3);
+      return { seq, blankIdx, hint:`Each number decreases by ${step}` };
+    },
+  ];
+  const { seq, blankIdx, hint } = ops[Math.floor(Math.random()*ops.length)]();
+  const answer = seq[blankIdx];
+
+  // Build wrong options
+  const offset = Math.floor(Math.random()*3)+1;
+  const options = shuffleArray([
+    answer,
+    answer + offset,
+    answer - offset,
+    answer + offset * 2,
+  ]).slice(0,4);
+
+  puzzleState.answer = answer;
+  puzzleState.seqBlankIdx = blankIdx;
+
+  document.getElementById('puzzle-hint').textContent = '💡 ' + hint;
+
+  let seqHtml = '<div class="seq-row">';
+  seq.forEach((n, i) => {
+    if (i === blankIdx) {
+      seqHtml += `<div class="seq-cell answer-slot" id="seq-blank">?</div>`;
+    } else {
+      seqHtml += `<div class="seq-cell">${n}</div>`;
+    }
+  });
+  seqHtml += '</div>';
+  seqHtml += '<div class="seq-row">';
+  options.forEach(opt => {
+    seqHtml += `<div class="seq-cell" style="cursor:pointer" onclick="checkSequenceAnswer(${opt})">${opt}</div>`;
+  });
+  seqHtml += '</div>';
+
+  document.getElementById('puzzle-content').innerHTML = seqHtml;
+}
+
+function checkSequenceAnswer(chosen) {
+  if (!puzzleState || puzzleState.solved) return;
+  if (chosen === puzzleState.answer) {
+    const blank = document.getElementById('seq-blank');
+    if (blank) { blank.textContent = chosen; blank.classList.add('correct'); }
+    puzzleState.solved = true;
+    showFeedback('✨ Correct! The creature is bound to you!', true);
+    setTimeout(() => captureCreature(puzzleState.creature), 1000);
+  } else {
+    puzzleState.tries++;
+    renderTries();
+    const cells = document.querySelectorAll('#puzzle-content .seq-cell');
+    cells.forEach(c => { if (c.textContent == chosen) { c.classList.add('wrong'); setTimeout(()=>c.classList.remove('wrong'),400); }});
+    showFeedback(`✗ Not quite. ${puzzleState.triesMax - puzzleState.tries} tries remaining.`, false);
+    if (puzzleState.tries >= puzzleState.triesMax) {
+      showFeedback(`The ${puzzleState.creature.name} escaped into the dark...`, false);
+      document.getElementById('puzzle-actions').innerHTML = '<button class="btn" onclick="closePuzzle()">Return</button>';
+    }
+  }
+}
+
+// ── GRID PUZZLE (Latin Square 3×3) ──
+function generateGridPuzzle() {
+  // Generate a valid 3×3 Latin square using digits 1-3
+  const solutions = [
+    [[1,2,3],[2,3,1],[3,1,2]],
+    [[1,3,2],[2,1,3],[3,2,1]],
+    [[2,1,3],[3,2,1],[1,3,2]],
+    [[2,3,1],[1,2,3],[3,1,2]],
+  ];
+  const sol = solutions[Math.floor(Math.random()*solutions.length)];
+
+  // Reveal some cells (given), hide others
+  const grid = sol.map(row => [...row]);
+  const givenMask = [];
+  let toReveal = 4; // reveal 4 cells
+  const positions = shuffleArray([0,1,2,3,4,5,6,7,8]);
+  for (let i=0; i<9; i++) givenMask[i] = false;
+  for (let i=0; i<toReveal; i++) givenMask[positions[i]] = true;
+
+  puzzleState.gridSol = sol;
+  puzzleState.gridGiven = givenMask;
+  puzzleState.gridCurrent = grid.flat().map((v,i) => givenMask[i] ? v : 0);
+  puzzleState.selectedGridCell = null;
+
+  document.getElementById('puzzle-hint').textContent = '💡 Each row & column must contain 1, 2 and 3 exactly once.';
+  renderGridPuzzle();
+}
+
+function renderGridPuzzle() {
+  const { gridCurrent, gridGiven, gridSol } = puzzleState;
+  let html = '<div class="grid-puzzle" style="grid-template-columns:repeat(3,1fr);max-width:200px;">';
+  gridCurrent.forEach((val, i) => {
+    const given = gridGiven[i];
+    const sel = puzzleState.selectedGridCell === i;
+    html += `<div class="grid-cell${given?' given':''}${sel?' selected-cell':''}" 
+      onclick="${given ? '' : `selectGridCell(${i})`}"
+      data-idx="${i}">
+      ${val || ''}
+    </div>`;
+  });
+  html += '</div>';
+  // numpad
+  html += '<div class="num-pad">';
+  [1,2,3].forEach(n => {
+    html += `<div class="num-btn" onclick="placeGridNum(${n})">${n}</div>`;
+  });
+  html += '<div class="num-btn" onclick="placeGridNum(0)" style="font-size:0.75rem;">✗</div>';
+  html += '</div>';
+
+  document.getElementById('puzzle-content').innerHTML = html;
+
+  document.getElementById('puzzle-actions').innerHTML =
+    `<button class="btn btn-success" onclick="checkGridPuzzle()">Check Answer</button>`;
+}
+
+function selectGridCell(idx) {
+  puzzleState.selectedGridCell = idx;
+  renderGridPuzzle();
+}
+
+function placeGridNum(n) {
+  if (puzzleState.selectedGridCell === null) return;
+  const idx = puzzleState.selectedGridCell;
+  if (puzzleState.gridGiven[idx]) return;
+  puzzleState.gridCurrent[idx] = n;
+  renderGridPuzzle();
+}
+
+function checkGridPuzzle() {
+  const { gridCurrent, gridSol } = puzzleState;
+  const flat = gridSol.flat();
+  const allFilled = gridCurrent.every(v => v > 0);
+  if (!allFilled) { showFeedback('Fill all cells first.', false); return; }
+
+  const correct = gridCurrent.every((v,i) => v === flat[i]);
+  if (correct) {
+    puzzleState.solved = true;
+    showFeedback('✨ Perfect! The grid is complete!', true);
+    document.getElementById('puzzle-actions').innerHTML = '';
+    setTimeout(() => captureCreature(puzzleState.creature), 1000);
+  } else {
+    puzzleState.tries++;
+    renderTries();
+    showFeedback(`✗ Not quite. ${puzzleState.triesMax - puzzleState.tries} tries remaining.`, false);
+    if (puzzleState.tries >= puzzleState.triesMax) {
+      showFeedback(`The ${puzzleState.creature.name} escaped...`, false);
+      document.getElementById('puzzle-actions').innerHTML = '<button class="btn" onclick="closePuzzle()">Return</button>';
+    }
+  }
+}
+
+// ════════════════════════════════════════
+//  CAPTURE
+// ════════════════════════════════════════
+
+function captureCreature(creature) {
+  const alreadyIdx = state.collection.findIndex(e => e.creatureId === creature.id);
+  if (alreadyIdx >= 0) {
+    // Level up if already owned
+    state.collection[alreadyIdx].level++;
+    showToast(`${creature.icon} ${creature.name} leveled up! Lv.${state.collection[alreadyIdx].level}`);
+  } else {
+    const entry = { creatureId: creature.id, level: 1, maxHp: creature.hp, hp: creature.hp };
+    state.collection.push(entry);
+    if (state.party.length < 3) state.party.push(creature.id);
+    showToast(`${creature.icon} ${creature.name} captured!`);
+  }
+  state.essence += 10;
+  updateHeader();
+  closePuzzle();
+}
+
+// ════════════════════════════════════════
+//  COLLECTION
+// ════════════════════════════════════════
+
+function renderCollection() {
+  const grid = document.getElementById('collection-grid');
+  const empty = document.getElementById('collection-empty');
+  grid.innerHTML = '';
+  if (state.collection.length === 0) {
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  state.collection.forEach(entry => {
+    const c = CREATURES.find(x => x.id === entry.creatureId);
+    const inParty = state.party.includes(c.id);
+    const div = document.createElement('div');
+    div.className = 'creature-card' + (inParty ? ' selected' : '');
+    div.innerHTML = `
+      <div class="c-icon">${c.icon}</div>
+      <div class="c-name">${c.name}</div>
+      <div class="c-level">Lv.${entry.level}</div>
+      <div class="c-type-badge type-${c.type}">${c.type}</div>
+      ${inParty ? '<div style="font-size:0.65rem;color:var(--gold);margin-top:4px;">⚔️ Party</div>' : ''}
+    `;
+    div.onclick = () => showDetail(c, entry);
+    grid.appendChild(div);
+  });
+}
+
+function showDetail(creature, entry) {
+  document.getElementById('detail-icon').textContent = creature.icon;
+  document.getElementById('detail-name').textContent = creature.name;
+  document.getElementById('detail-flavor').textContent = creature.flavor;
+
+  const inParty = state.party.includes(creature.id);
+  document.getElementById('detail-stats').innerHTML = `
+    <div class="detail-stat"><div class="detail-stat-label">Level</div><div class="detail-stat-value">${entry.level}</div></div>
+    <div class="detail-stat"><div class="detail-stat-label">HP</div><div class="detail-stat-value">${entry.maxHp + (entry.level-1)*3}</div></div>
+    <div class="detail-stat"><div class="detail-stat-label">Attack</div><div class="detail-stat-value">${creature.atk + entry.level - 1}</div></div>
+    <div class="detail-stat"><div class="detail-stat-label">Type</div><div class="detail-stat-value" style="text-transform:capitalize">${creature.type}</div></div>
+    <div class="detail-stat"><div class="detail-stat-label">Trait</div><div class="detail-stat-value" style="font-size:0.75rem">${creature.lore}</div></div>
+    <div class="detail-stat"><div class="detail-stat-label">Party</div><div class="detail-stat-value">${inParty ? '✅ Yes' : '—'}</div></div>
+  `;
+
+  // Party button
+  const box = document.getElementById('detail-box');
+  const existing = box.querySelector('.party-btn');
+  if (existing) existing.remove();
+  if (!inParty && state.party.length < 3) {
+    const pb = document.createElement('button');
+    pb.className = 'btn btn-success party-btn';
+    pb.style.marginTop = '8px';
+    pb.textContent = 'Add to Party';
+    pb.onclick = () => { state.party.push(creature.id); closeDetail(); renderCollection(); updateHeader(); };
+    box.querySelector('div:last-child').prepend(pb);
+  } else if (inParty && state.party.length > 1) {
+    const pb = document.createElement('button');
+    pb.className = 'btn btn-danger party-btn';
+    pb.style.marginTop = '8px';
+    pb.textContent = 'Remove from Party';
+    pb.onclick = () => {
+      state.party = state.party.filter(id => id !== creature.id);
+      closeDetail(); renderCollection(); updateHeader();
+    };
+    box.querySelector('div:last-child').prepend(pb);
+  }
+
+  document.getElementById('detail-overlay').classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detail-overlay').classList.remove('open');
+}
+
+// ════════════════════════════════════════
+//  BATTLE SYSTEM
+// ════════════════════════════════════════
+
+let battleState = null;
+
+function startBattle(zone) {
+  if (state.party.length === 0) { showToast('You need creatures in your party!'); return; }
+
+  const myCreatureId = state.party[0];
+  const myCEntry = state.collection.find(e => e.creatureId === myCreatureId);
+  const myC = CREATURES.find(c => c.id === myCreatureId);
+
+  const enemyCDef = CREATURES.find(c => c.id === zone.boss.creature);
+
+  battleState = {
+    zone,
+    mine: {
+      id: myCreatureId,
+      def: myC,
+      entry: myCEntry,
+      hp: myC.hp + (myCEntry.level - 1) * 3,
+      maxHp: myC.hp + (myCEntry.level - 1) * 3,
+      atk: myC.atk + myCEntry.level - 1,
+    },
+    enemy: {
+      def: enemyCDef,
+      hp: enemyCDef.hp + 5,
+      maxHp: enemyCDef.hp + 5,
+      atk: enemyCDef.atk + 2,
+    },
+    phase: 'player',   // 'player' | 'puzzle' | 'enemy' | 'end'
+    puzzleSolved: false,
+    turn: 1,
+  };
+
+  document.getElementById('battle-overlay').classList.add('open');
+  document.getElementById('battle-title').textContent = `⚔️ vs ${zone.boss.name}`;
+  renderBattleArena();
+  setBattleLog(`${zone.boss.name} challenges you! ${zone.boss.icon}`);
+}
+
+function renderBattleArena() {
+  const bs = battleState;
+  const mHpPct = Math.max(0, (bs.mine.hp / bs.mine.maxHp) * 100);
+  const eHpPct = Math.max(0, (bs.enemy.hp / bs.enemy.maxHp) * 100);
+
+  document.getElementById('battle-arena').innerHTML = `
+    <div class="battle-phase-title">Turn ${bs.turn} — ${bs.phase === 'player' ? 'Your Move' : bs.phase === 'enemy' ? 'Enemy Turn' : bs.phase === 'puzzle' ? 'Puzzle Phase' : 'Battle Over'}</div>
+    <div class="combatant">
+      <div class="combatant-icon" id="my-icon">${bs.mine.def.icon}</div>
+      <div class="combatant-info">
+        <div class="combatant-name">${bs.mine.def.name} (Lv.${bs.mine.entry.level})</div>
+        <div class="hp-bar"><div class="hp-fill mine" style="width:${mHpPct}%"></div></div>
+        <div class="hp-text">${bs.mine.hp} / ${bs.mine.maxHp} HP</div>
+      </div>
+    </div>
+    <div class="vs-divider">— VS —</div>
+    <div class="combatant">
+      <div class="combatant-icon" id="enemy-icon">${bs.enemy.def.icon}</div>
+      <div class="combatant-info">
+        <div class="combatant-name">${battleState.zone.boss.name}'s ${bs.enemy.def.name}</div>
+        <div class="hp-bar"><div class="hp-fill enemy" style="width:${eHpPct}%"></div></div>
+        <div class="hp-text">${bs.enemy.hp} / ${bs.enemy.maxHp} HP</div>
+      </div>
+    </div>
+    <div class="battle-log" id="battle-log"></div>
+  `;
+  renderBattleActions();
+}
+
+function setBattleLog(msg) {
+  const log = document.getElementById('battle-log');
+  if (log) log.textContent = msg;
+}
+
+function renderBattleActions() {
+  const area = document.getElementById('battle-puzzle-area');
+  const bs = battleState;
+  if (bs.phase === 'player') {
+    area.innerHTML = `
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px;">
+        <button class="btn btn-success" onclick="playerAttack()">⚔️ Normal Attack</button>
+        <button class="btn" onclick="startBattlePuzzle()">🧩 Puzzle Strike</button>
+        <button class="btn btn-danger" onclick="fleeBattle()">🏃 Flee</button>
+      </div>
+      <p class="battle-puzzle-prompt">Puzzle Strike: Solve a mini-puzzle for bonus damage!</p>
+    `;
+  } else if (bs.phase === 'end') {
+    area.innerHTML = '';
+  }
+}
+
+function playerAttack() {
+  const bs = battleState;
+  const dmg = bs.mine.atk + Math.floor(Math.random() * 4);
+  bs.enemy.hp = Math.max(0, bs.enemy.hp - dmg);
+  setBattleLog(`${bs.mine.def.name} strikes for ${dmg} damage!`);
+  animateDamage('enemy-icon');
+
+  if (bs.enemy.hp <= 0) {
+    battleVictory();
+  } else {
+    bs.phase = 'enemy';
+    bs.turn++;
+    renderBattleArena();
+    setTimeout(enemyTurn, 900);
+  }
+}
+
+function startBattlePuzzle() {
+  const bs = battleState;
+  bs.phase = 'puzzle';
+  renderBattleArena();
+
+  const area = document.getElementById('battle-puzzle-area');
+  // Quick sequence puzzle
+  const ops = [
+    () => {
+      const s = Math.floor(Math.random()*4)+1, step = Math.floor(Math.random()*4)+2;
+      const seq = [s, s+step, s+step*2, '?'];
+      const answer = s+step*3;
+      const opts = shuffleArray([answer, answer+step, answer-step, answer+1]).slice(0,4);
+      return { seq, answer, opts, hint:`+${step} each time` };
+    },
+    () => {
+      const s = Math.floor(Math.random()*2)+1, m = 2+Math.floor(Math.random()*2);
+      const seq = [s, s*m, s*m*m, '?'];
+      const answer = s*m*m*m;
+      const opts = shuffleArray([answer, answer+m, answer-m, answer*2]).slice(0,4);
+      return { seq, answer, opts, hint:`×${m} each time` };
+    },
+  ];
+  const { seq, answer, opts, hint } = ops[Math.floor(Math.random()*ops.length)]();
+
+  area.innerHTML = `
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:16px;margin-top:8px;">
+      <div style="font-family:'Cinzel',serif;font-size:0.8rem;color:var(--gold);margin-bottom:8px;text-align:center;">⚡ PUZZLE STRIKE ⚡</div>
+      <p style="text-align:center;font-size:0.8rem;color:var(--muted);margin-bottom:10px;font-style:italic;">Hint: ${hint}</p>
+      <div class="battle-seq">
+        ${seq.map(n => `<div class="seq-cell ${n==='?'?'answer-slot':''}">${n}</div>`).join('')}
+      </div>
+      <div class="battle-seq">
+        ${opts.map(o => `<div class="seq-cell" style="cursor:pointer" onclick="battlePuzzleAnswer(${o},${answer})">${o}</div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function battlePuzzleAnswer(chosen, answer) {
+  const bs = battleState;
+  const area = document.getElementById('battle-puzzle-area');
+  if (chosen === answer) {
+    const bonus = Math.floor(bs.mine.atk * 1.5) + Math.floor(Math.random() * 6);
+    bs.enemy.hp = Math.max(0, bs.enemy.hp - bonus);
+    setBattleLog(`🧩 PUZZLE STRIKE! ${bs.mine.def.name} deals ${bonus} bonus damage!`);
+    animateDamage('enemy-icon');
+    showToast('🎯 Puzzle Solved! +' + bonus + ' dmg!');
+  } else {
+    const penalty = Math.floor(bs.mine.atk * 0.3);
+    bs.mine.hp = Math.max(0, bs.mine.hp - penalty);
+    setBattleLog(`❌ Wrong answer! ${bs.mine.def.name} stumbles, taking ${penalty} backlash!`);
+    animateDamage('my-icon');
+  }
+
+  if (bs.enemy.hp <= 0) { battleVictory(); return; }
+  if (bs.mine.hp <= 0) { battleDefeat(); return; }
+
+  bs.phase = 'enemy';
+  bs.turn++;
+  renderBattleArena();
+  setTimeout(enemyTurn, 900);
+}
+
+function enemyTurn() {
+  const bs = battleState;
+  const dmg = bs.enemy.atk + Math.floor(Math.random() * 5) - 2;
+  const actualDmg = Math.max(1, dmg);
+  bs.mine.hp = Math.max(0, bs.mine.hp - actualDmg);
+  setBattleLog(`${bs.enemy.def.name} retaliates for ${actualDmg} damage!`);
+  animateDamage('my-icon');
+
+  if (bs.mine.hp <= 0) {
+    battleDefeat();
+  } else {
+    bs.phase = 'player';
+    renderBattleArena();
+  }
+}
+
+function battleVictory() {
+  const bs = battleState;
+  bs.phase = 'end';
+  state.bossDefeated.push(bs.zone.id);
+  state.clearedZones.push(bs.zone.id);
+  state.essence += 30;
+  updateHeader();
+  renderZones();
+
+  document.getElementById('battle-arena').innerHTML += `
+    <div style="text-align:center;margin-top:12px;">
+      <div style="font-size:2rem;margin-bottom:8px;">🏆</div>
+      <div style="font-family:'Cinzel',serif;color:var(--gold);font-size:1rem;">Victory!</div>
+      <div style="color:var(--muted);font-size:0.85rem;margin-top:6px;">+30 Essence · ${bs.zone.name} cleared!</div>
+    </div>
+  `;
+  document.getElementById('battle-puzzle-area').innerHTML = `
+    <div style="text-align:center;margin-top:12px;">
+      <button class="btn btn-success" onclick="closeBattle()">Return to Map</button>
+    </div>
+  `;
+  showToast('⚔️ Battle Won! +30 Essence');
+}
+
+function battleDefeat() {
+  const bs = battleState;
+  bs.phase = 'end';
+  document.getElementById('battle-arena').innerHTML += `
+    <div style="text-align:center;margin-top:12px;">
+      <div style="font-size:2rem;margin-bottom:8px;">💀</div>
+      <div style="font-family:'Cinzel',serif;color:var(--red);font-size:1rem;">Defeated...</div>
+      <div style="color:var(--muted);font-size:0.85rem;margin-top:6px;">Train more creatures and try again.</div>
+    </div>
+  `;
+  document.getElementById('battle-puzzle-area').innerHTML = `
+    <div style="text-align:center;margin-top:12px;">
+      <button class="btn btn-danger" onclick="closeBattle()">Retreat</button>
+    </div>
+  `;
+}
+
+function fleeBattle() {
+  closeBattle();
+  showToast('You fled from battle.');
+}
+
+function closeBattle() {
+  document.getElementById('battle-overlay').classList.remove('open');
+  battleState = null;
+  // Heal party slightly
+  state.collection.forEach(e => {
+    const c = CREATURES.find(x => x.id === e.creatureId);
+    const maxHp = c.hp + (e.level-1)*3;
+    e.hp = maxHp;
+    e.maxHp = maxHp;
+  });
+}
+
+function animateDamage(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add('damage-anim');
+  setTimeout(() => el.classList.remove('damage-anim'), 350);
+}
+
+// ════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════
+
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i=a.length-1;i>0;i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+let toastTimeout = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  if (toastTimeout) clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => t.classList.remove('visible'), 2200);
+}
+</script>
+</body>
+</html>
