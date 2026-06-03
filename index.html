@@ -57,22 +57,42 @@
     padding: 12px 20px;
     background: var(--bg2);
     border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
   }
   #header h1 {
     font-size: 1.3rem;
     color: var(--gold);
     text-shadow: 0 0 20px rgba(201,168,76,0.4);
   }
-  #header-info {
+
+  /* ── STATS BAR ── */
+  #stats-bar {
     display: flex;
-    gap: 16px;
-    font-size: 0.85rem;
+    justify-content: center;
+    gap: 32px;
+    padding: 8px 20px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
     color: var(--muted);
   }
-  #header-info span { color: var(--gold2); }
+  #stats-bar span { color: var(--text); }
+  #stats-bar span span { color: var(--gold2); font-family: 'Cinzel', serif; }
+
+  /* ── TAB NAV (below stats) ── */
+  #tab-nav {
+    display: flex;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── BOTTOM BAR ── */
+  #bottom-bar {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+  }
 
   /* ── TITLE SCREEN ── */
   #title-screen {
@@ -183,13 +203,8 @@
   .zone-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
   .zone-badge { font-size: 0.75rem; color: var(--border2); margin-top: 8px; }
 
-  /* ── BOTTOM NAV ── */
-  #bottom-nav {
-    display: flex;
-    background: var(--bg2);
-    border-top: 1px solid var(--border);
-  }
-  .nav-btn {
+  /* ── NAV BUTTONS ── */
+  #tab-nav .nav-btn {
     flex: 1;
     padding: 12px 4px;
     background: none;
@@ -230,7 +245,7 @@
   .creature-card.selected { border-color: var(--gold); box-shadow: 0 0 12px rgba(201,168,76,0.3); }
   .creature-card.empty { opacity: 0.3; cursor: default; }
   .creature-card.empty:hover { transform: none; }
-  .c-icon { font-size: 2.2rem; margin-bottom: 6px; }
+  .c-icon { display:flex; justify-content:center; align-items:center; margin-bottom:6px; }
   .c-name { font-family: 'Cinzel', serif; font-size: 0.7rem; color: var(--gold2); }
   .c-level { font-size: 0.75rem; color: var(--muted); }
   .c-type-badge {
@@ -280,8 +295,9 @@
   .puzzle-subtitle { font-size: 0.85rem; color: var(--muted); margin-top: 4px; }
   .puzzle-target {
     text-align: center;
-    font-size: 3rem;
     margin: 16px 0 8px;
+    display: flex;
+    justify-content: center;
     filter: drop-shadow(0 0 20px rgba(160,107,255,0.5));
   }
   .puzzle-creature-name { text-align: center; font-family:'Cinzel',serif; color: var(--gold2); font-size:1rem; margin-bottom:20px; }
@@ -295,28 +311,53 @@
     flex-wrap: wrap;
     margin-bottom: 16px;
   }
+  /* Sequence tiles — known numbers (stone tablet style) */
   .seq-cell {
     width: 44px; height: 44px;
-    background: var(--panel);
-    border: 1px solid var(--border2);
-    border-radius: 4px;
+    background: linear-gradient(145deg, #1e1a2e, #151022);
+    border: 2px solid var(--border);
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
-    cursor: pointer;
+    font-size: 1.1rem;
+    cursor: default;
     transition: all 0.15s;
     font-family: 'Cinzel', serif;
-    color: var(--text);
+    color: var(--muted);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.04);
+    letter-spacing: 0;
   }
+  /* Answer blank slot */
   .seq-cell.answer-slot {
-    background: rgba(123,79,207,0.15);
-    border-color: var(--accent2);
+    background: rgba(123,79,207,0.12);
+    border: 2px dashed var(--accent2);
+    color: var(--accent2);
+    font-size: 1.4rem;
     cursor: default;
+    box-shadow: 0 0 10px rgba(160,107,255,0.15) inset;
   }
+  /* Answer option tiles — glowing rune buttons */
+  .seq-cell.option {
+    background: linear-gradient(135deg, rgba(90,74,154,0.35), rgba(50,30,100,0.5));
+    border: 1px solid var(--accent);
+    color: var(--gold2);
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(123,79,207,0.2), inset 0 1px 0 rgba(255,255,255,0.06);
+    border-radius: 8px;
+    font-size: 1.1rem;
+  }
+  .seq-cell.option:hover {
+    background: linear-gradient(135deg, rgba(123,79,207,0.55), rgba(80,40,160,0.65));
+    border-color: var(--gold);
+    color: var(--gold2);
+    box-shadow: 0 0 16px rgba(201,168,76,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+  }
+  .seq-cell.option:active { transform: translateY(0); }
   .seq-cell.filled { color: var(--gold2); border-color: var(--gold); }
-  .seq-cell.wrong { border-color: var(--red); color: #e57373; animation: shake 0.3s; }
-  .seq-cell.correct { border-color: var(--green); color: #81c784; }
+  .seq-cell.wrong { border-color: var(--red); color: #e57373; animation: shake 0.3s; box-shadow: 0 0 10px rgba(192,57,43,0.3); }
+  .seq-cell.correct { border-color: var(--green); color: #81c784; box-shadow: 0 0 10px rgba(39,174,96,0.3); }
 
   /* Grid puzzle */
   .grid-puzzle {
@@ -421,7 +462,7 @@
     gap: 16px;
     margin-bottom: 12px;
   }
-  .combatant-icon { font-size: 2.5rem; }
+  .combatant-icon { display:flex; align-items:center; justify-content:center; flex-shrink:0; }
   .combatant-info { flex: 1; }
   .combatant-name { font-family:'Cinzel',serif; font-size:0.85rem; color:var(--gold2); }
   .hp-bar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 6px; overflow:hidden; }
@@ -523,7 +564,21 @@
     width: 100%;
     box-shadow: 0 0 50px rgba(123,79,207,0.3);
   }
-  .detail-icon { font-size:4rem; text-align:center; margin-bottom:10px; }
+  .detail-icon {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+  .detail-icon-frame {
+    background: linear-gradient(135deg, rgba(123,79,207,0.15), rgba(74,20,140,0.25));
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 30px rgba(123,79,207,0.2) inset, 0 4px 20px rgba(0,0,0,0.4);
+  }
   .detail-name { font-family:'Cinzel',serif; font-size:1.2rem; color:var(--gold); text-align:center; }
   .detail-flavor { font-size:0.9rem; color:var(--muted); font-style:italic; text-align:center; margin:10px 0 16px; line-height:1.6; }
   .detail-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
@@ -534,7 +589,7 @@
   /* Notification toast */
   #toast {
     position: fixed;
-    bottom: 70px;
+    bottom: 56px;
     left: 50%;
     transform: translateX(-50%);
     background: var(--panel);
@@ -584,15 +639,26 @@
 <!-- ═══════════ MAIN GAME ═══════════ -->
 <div id="main-wrapper" style="display:none;flex-direction:column;min-height:100vh;">
 
-  <!-- Header -->
+  <!-- Header: title only -->
   <div id="header">
     <h1>PUZZLEBOUND</h1>
-    <div id="header-info">
-      <span id="hdr-party">Party: <span id="hdr-party-count">0</span>/3</span>
-      <span id="hdr-gold">Essence: <span id="hdr-gold-val">0</span></span>
-      <span id="save-indicator" style="color:var(--green);opacity:0;transition:opacity 0.4s;font-size:0.8rem;">💾 Saved</span>
-      <button class="btn btn-danger" style="padding:4px 10px;font-size:0.65rem;" onclick="deleteSave()">Erase</button>
-    </div>
+    <span id="save-indicator" style="color:var(--green);opacity:0;transition:opacity 0.4s;font-size:0.8rem;">💾 Saved</span>
+  </div>
+
+  <!-- Stats bar -->
+  <div id="stats-bar">
+    <span id="hdr-party">⚔️ Party: <span id="hdr-party-count">0</span>/3</span>
+    <span id="hdr-gold">✦ Essence: <span id="hdr-gold-val">0</span></span>
+  </div>
+
+  <!-- Tab nav -->
+  <div id="tab-nav">
+    <button class="nav-btn active" onclick="switchTab('map-screen',this)">
+      <span class="nav-icon">🗺️</span>Map
+    </button>
+    <button class="nav-btn" onclick="switchTab('collection-screen',this)">
+      <span class="nav-icon">📖</span>Bestiary
+    </button>
   </div>
 
   <!-- Screens -->
@@ -609,14 +675,9 @@
     </div>
   </div>
 
-  <!-- Bottom Nav -->
-  <div id="bottom-nav">
-    <button class="nav-btn active" onclick="switchTab('map-screen',this)">
-      <span class="nav-icon">🗺️</span>Map
-    </button>
-    <button class="nav-btn" onclick="switchTab('collection-screen',this)">
-      <span class="nav-icon">📖</span>Bestiary
-    </button>
+  <!-- Erase at bottom -->
+  <div id="bottom-bar">
+    <button class="btn btn-danger" style="padding:6px 16px;font-size:0.7rem;" onclick="deleteSave()">🗑 Erase Save</button>
   </div>
 </div>
 
@@ -669,19 +730,400 @@
 //  DATA
 // ════════════════════════════════════════
 
+// SVG sprites — inline, no external deps
+const SVGS = {
+  lumox: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <!-- Lumox: arcane moth with rune-wings -->
+    <ellipse cx="40" cy="48" rx="7" ry="10" fill="#b39ddb" opacity="0.9"/>
+    <!-- left wings -->
+    <ellipse cx="22" cy="36" rx="16" ry="11" fill="#7b4fcf" opacity="0.75" transform="rotate(-20,22,36)"/>
+    <ellipse cx="26" cy="52" rx="10" ry="7" fill="#5c35a0" opacity="0.6" transform="rotate(15,26,52)"/>
+    <!-- right wings -->
+    <ellipse cx="58" cy="36" rx="16" ry="11" fill="#7b4fcf" opacity="0.75" transform="rotate(20,58,36)"/>
+    <ellipse cx="54" cy="52" rx="10" ry="7" fill="#5c35a0" opacity="0.6" transform="rotate(-15,54,52)"/>
+    <!-- rune marks on wings -->
+    <text x="18" y="38" font-size="9" fill="#f0d080" opacity="0.8" font-family="serif">ψ</text>
+    <text x="52" y="38" font-size="9" fill="#f0d080" opacity="0.8" font-family="serif">Σ</text>
+    <!-- body -->
+    <ellipse cx="40" cy="46" rx="5" ry="9" fill="#d1c4e9"/>
+    <!-- glowing eyes -->
+    <circle cx="37" cy="40" r="2.5" fill="#f0d080"/>
+    <circle cx="43" cy="40" r="2.5" fill="#f0d080"/>
+    <circle cx="37" cy="40" r="1" fill="#fff"/>
+    <circle cx="43" cy="40" r="1" fill="#fff"/>
+    <!-- antennae -->
+    <line x1="38" y1="37" x2="30" y2="28" stroke="#b39ddb" stroke-width="1.2"/>
+    <circle cx="30" cy="28" r="2" fill="#a06bff"/>
+    <line x1="42" y1="37" x2="50" y2="28" stroke="#b39ddb" stroke-width="1.2"/>
+    <circle cx="50" cy="28" r="2" fill="#a06bff"/>
+    <!-- glow -->
+    <ellipse cx="40" cy="44" rx="18" ry="14" fill="none" stroke="#a06bff" stroke-width="0.8" opacity="0.4"/>
+  </svg>`,
+
+  pyrix: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <!-- Pyrix: ember fox -->
+    <!-- tail -->
+    <ellipse cx="62" cy="54" rx="14" ry="8" fill="#e67e22" opacity="0.8" transform="rotate(-30,62,54)"/>
+    <ellipse cx="65" cy="46" rx="8" ry="5" fill="#f0d080" opacity="0.7" transform="rotate(-40,65,46)"/>
+    <!-- body -->
+    <ellipse cx="40" cy="52" rx="14" ry="10" fill="#e67e22"/>
+    <!-- head -->
+    <ellipse cx="36" cy="38" rx="11" ry="10" fill="#e67e22"/>
+    <!-- snout -->
+    <ellipse cx="31" cy="42" rx="6" ry="4" fill="#f0a060"/>
+    <ellipse cx="30" cy="43" rx="2.5" ry="1.5" fill="#1a0800"/>
+    <!-- ears -->
+    <polygon points="28,28 24,18 34,24" fill="#e67e22"/>
+    <polygon points="29,27 26,20 33,24" fill="#f0a060"/>
+    <polygon points="44,28 48,18 40,24" fill="#e67e22"/>
+    <polygon points="43,27 46,20 41,24" fill="#f0a060"/>
+    <!-- eyes -->
+    <ellipse cx="34" cy="36" rx="3" ry="3.5" fill="#f0d080"/>
+    <ellipse cx="41" cy="36" rx="3" ry="3.5" fill="#f0d080"/>
+    <ellipse cx="34" cy="36" rx="1.5" ry="2" fill="#1a0800"/>
+    <ellipse cx="41" cy="36" rx="1.5" ry="2" fill="#1a0800"/>
+    <!-- ember particles -->
+    <circle cx="24" cy="30" r="1.5" fill="#f0d080" opacity="0.9"/>
+    <circle cx="20" cy="24" r="1" fill="#e67e22" opacity="0.7"/>
+    <circle cx="55" cy="26" r="1.5" fill="#f0d080" opacity="0.8"/>
+    <circle cx="58" cy="20" r="1" fill="#ff9800" opacity="0.6"/>
+    <!-- legs -->
+    <rect x="30" y="60" width="5" height="8" rx="2" fill="#c0621a"/>
+    <rect x="40" y="60" width="5" height="8" rx="2" fill="#c0621a"/>
+  </svg>`,
+
+  aquox: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <!-- Aquox: logic octopus -->
+    <!-- mantle/head -->
+    <ellipse cx="40" cy="32" rx="18" ry="16" fill="#1565c0" opacity="0.9"/>
+    <ellipse cx="40" cy="28" rx="14" ry="12" fill="#1976d2"/>
+    <!-- eyes -->
+    <ellipse cx="34" cy="30" rx="5" ry="6" fill="#e3f2fd"/>
+    <ellipse cx="46" cy="30" rx="5" ry="6" fill="#e3f2fd"/>
+    <circle cx="34" cy="31" r="3" fill="#0d47a1"/>
+    <circle cx="46" cy="31" r="3" fill="#0d47a1"/>
+    <circle cx="33" cy="30" r="1" fill="#fff"/>
+    <circle cx="45" cy="30" r="1" fill="#fff"/>
+    <!-- 8 tentacles with numbers -->
+    <path d="M26,44 Q18,52 16,62" stroke="#1565c0" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M30,46 Q24,56 22,66" stroke="#1976d2" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M35,47 Q33,58 31,68" stroke="#1565c0" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M40,48 Q40,60 40,70" stroke="#1976d2" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M45,47 Q47,58 49,68" stroke="#1565c0" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M50,46 Q56,56 58,66" stroke="#1976d2" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M54,44 Q62,52 64,62" stroke="#1565c0" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M57,40 Q66,46 68,56" stroke="#1976d2" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <!-- binary dots on mantle -->
+    <circle cx="36" cy="22" r="2" fill="#81d4fa" opacity="0.9"/>
+    <circle cx="40" cy="20" r="2" fill="#e3f2fd" opacity="0.9"/>
+    <circle cx="44" cy="22" r="2" fill="#81d4fa" opacity="0.9"/>
+    <!-- ink glow -->
+    <ellipse cx="40" cy="32" rx="20" ry="18" fill="none" stroke="#42a5f5" stroke-width="1" opacity="0.3"/>
+  </svg>`,
+
+  stonyx: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <!-- Stonyx: living stone hedgehog -->
+    <!-- spines (stone shards) -->
+    <polygon points="40,8 37,22 43,22" fill="#78909c"/>
+    <polygon points="52,12 44,24 50,26" fill="#607d8b"/>
+    <polygon points="60,22 48,28 52,34" fill="#78909c"/>
+    <polygon points="28,12 36,24 30,26" fill="#607d8b"/>
+    <polygon points="20,22 32,28 28,34" fill="#78909c"/>
+    <polygon points="58,34 48,34 52,42" fill="#607d8b"/>
+    <polygon points="22,34 32,34 28,42" fill="#78909c"/>
+    <!-- body -->
+    <ellipse cx="40" cy="48" rx="20" ry="15" fill="#90a4ae"/>
+    <ellipse cx="40" cy="46" rx="16" ry="12" fill="#b0bec5"/>
+    <!-- cracks/rune lines -->
+    <path d="M32,42 L36,48 L32,54" stroke="#546e7a" stroke-width="1.5" fill="none"/>
+    <path d="M44,40 L48,47 L46,55" stroke="#546e7a" stroke-width="1.5" fill="none"/>
+    <!-- face -->
+    <ellipse cx="34" cy="44" rx="3" ry="2.5" fill="#37474f"/>
+    <ellipse cx="34" cy="44" rx="1.5" ry="1.5" fill="#eceff1" opacity="0.6"/>
+    <ellipse cx="44" cy="44" rx="3" ry="2.5" fill="#37474f"/>
+    <ellipse cx="44" cy="44" rx="1.5" ry="1.5" fill="#eceff1" opacity="0.6"/>
+    <path d="M36,50 Q40,53 44,50" stroke="#546e7a" stroke-width="1.5" fill="none"/>
+    <!-- stubby legs -->
+    <rect x="28" y="60" width="8" height="6" rx="3" fill="#78909c"/>
+    <rect x="44" y="60" width="8" height="6" rx="3" fill="#78909c"/>
+    <!-- moss accent -->
+    <ellipse cx="36" cy="36" rx="4" ry="2" fill="#4caf50" opacity="0.5"/>
+    <ellipse cx="46" cy="38" rx="3" ry="1.5" fill="#66bb6a" opacity="0.5"/>
+  </svg>`,
+
+  vexwing: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <!-- Vexwing: speed hawk, wisp type -->
+    <!-- motion trails -->
+    <path d="M10,40 Q20,36 30,40" stroke="#b2ebf2" stroke-width="2" fill="none" opacity="0.4"/>
+    <path d="M8,46 Q20,42 32,46" stroke="#80deea" stroke-width="1.5" fill="none" opacity="0.3"/>
+    <!-- wings spread -->
+    <path d="M40,38 Q24,22 10,28 Q20,34 36,42" fill="#00acc1" opacity="0.85"/>
+    <path d="M40,38 Q56,22 70,28 Q60,34 44,42" fill="#00acc1" opacity="0.85"/>
+    <!-- wing detail -->
+    <path d="M40,38 Q28,28 14,30" stroke="#b2ebf2" stroke-width="0.8" fill="none" opacity="0.5"/>
+    <path d="M40,38 Q52,28 66,30" stroke="#b2ebf2" stroke-width="0.8" fill="none" opacity="0.5"/>
+    <!-- body -->
+    <ellipse cx="40" cy="44" rx="7" ry="12" fill="#00838f"/>
+    <!-- head -->
+    <ellipse cx="40" cy="34" rx="8" ry="8" fill="#00acc1"/>
+    <!-- beak -->
+    <polygon points="40,38 36,42 44,42" fill="#f0d080"/>
+    <!-- fierce eyes -->
+    <ellipse cx="36" cy="32" rx="3" ry="3" fill="#fff"/>
+    <ellipse cx="44" cy="32" rx="3" ry="3" fill="#fff"/>
+    <circle cx="37" cy="32" r="2" fill="#1a237e"/>
+    <circle cx="45" cy="32" r="2" fill="#1a237e"/>
+    <circle cx="37" cy="31" r="0.8" fill="#fff"/>
+    <circle cx="45" cy="31" r="0.8" fill="#fff"/>
+    <!-- tail feathers -->
+    <path d="M36,56 Q32,64 28,68" stroke="#00acc1" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <path d="M40,58 Q40,66 40,70" stroke="#00838f" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <path d="M44,56 Q48,64 52,68" stroke="#00acc1" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <!-- speed glow -->
+    <ellipse cx="40" cy="40" rx="22" ry="18" fill="none" stroke="#80deea" stroke-width="1" opacity="0.25"/>
+  </svg>`,
+
+  glimmer: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <!-- Glimmer: pure arcane spark creature — a geometric spirit -->
+    <!-- outer glow rings -->
+    <circle cx="40" cy="40" r="30" fill="none" stroke="#a06bff" stroke-width="0.8" opacity="0.2"/>
+    <circle cx="40" cy="40" r="22" fill="none" stroke="#ce93d8" stroke-width="0.8" opacity="0.3"/>
+    <!-- body: rotating diamond form -->
+    <polygon points="40,14 54,40 40,60 26,40" fill="#7b4fcf" opacity="0.7"/>
+    <polygon points="40,14 54,40 40,60 26,40" fill="none" stroke="#f0d080" stroke-width="1.5"/>
+    <!-- inner light -->
+    <polygon points="40,24 50,40 40,52 30,40" fill="#ce93d8" opacity="0.6"/>
+    <circle cx="40" cy="40" r="8" fill="#f0d080" opacity="0.5"/>
+    <circle cx="40" cy="40" r="4" fill="#fff" opacity="0.8"/>
+    <!-- star rays -->
+    <line x1="40" y1="8"  x2="40" y2="16" stroke="#f0d080" stroke-width="1.5" opacity="0.7"/>
+    <line x1="40" y1="64" x2="40" y2="72" stroke="#f0d080" stroke-width="1.5" opacity="0.7"/>
+    <line x1="8"  y1="40" x2="16" y2="40" stroke="#f0d080" stroke-width="1.5" opacity="0.7"/>
+    <line x1="64" y1="40" x2="72" y2="40" stroke="#f0d080" stroke-width="1.5" opacity="0.7"/>
+    <line x1="17" y1="17" x2="23" y2="23" stroke="#ce93d8" stroke-width="1" opacity="0.6"/>
+    <line x1="57" y1="57" x2="63" y2="63" stroke="#ce93d8" stroke-width="1" opacity="0.6"/>
+    <line x1="63" y1="17" x2="57" y2="23" stroke="#ce93d8" stroke-width="1" opacity="0.6"/>
+    <line x1="23" y1="57" x2="17" y2="63" stroke="#ce93d8" stroke-width="1" opacity="0.6"/>
+    <!-- floating logic symbols -->
+    <text x="14" y="26" font-size="8" fill="#f0d080" opacity="0.7" font-family="serif">∴</text>
+    <text x="58" y="26" font-size="8" fill="#f0d080" opacity="0.7" font-family="serif">∵</text>
+  </svg>`,
+
+  torchid: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <!-- Torchid: orchid-dragon -->
+    <!-- flame breath -->
+    <ellipse cx="20" cy="36" rx="12" ry="6" fill="#ff9800" opacity="0.5" transform="rotate(-10,20,36)"/>
+    <ellipse cx="14" cy="34" rx="7" ry="4" fill="#f0d080" opacity="0.4" transform="rotate(-15,14,34)"/>
+    <!-- wings (orchid petals) -->
+    <ellipse cx="52" cy="30" rx="14" ry="8" fill="#e91e63" opacity="0.7" transform="rotate(30,52,30)"/>
+    <ellipse cx="56" cy="44" rx="12" ry="6" fill="#c2185b" opacity="0.6" transform="rotate(-20,56,44)"/>
+    <!-- body -->
+    <ellipse cx="40" cy="46" rx="12" ry="14" fill="#bf360c"/>
+    <!-- neck -->
+    <ellipse cx="36" cy="34" rx="7" ry="8" fill="#d84315"/>
+    <!-- head -->
+    <ellipse cx="33" cy="26" rx="10" ry="9" fill="#bf360c"/>
+    <!-- snout -->
+    <ellipse cx="26" cy="30" rx="7" ry="4" fill="#d84315"/>
+    <ellipse cx="23" cy="31" rx="2.5" ry="1.5" fill="#111"/>
+    <!-- horns -->
+    <line x1="32" y1="18" x2="28" y2="8" stroke="#e91e63" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="38" y1="17" x2="42" y2="8" stroke="#e91e63" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- orchid eye markings -->
+    <ellipse cx="30" cy="24" rx="4" ry="4" fill="#f48fb1"/>
+    <circle cx="30" cy="24" r="2.2" fill="#1a0800"/>
+    <circle cx="29" cy="23" r="0.8" fill="#fff"/>
+    <!-- scales -->
+    <path d="M36,46 Q40,42 44,46 Q40,50 36,46Z" fill="#e64a19" opacity="0.6"/>
+    <path d="M36,52 Q40,48 44,52 Q40,56 36,52Z" fill="#e64a19" opacity="0.6"/>
+    <!-- tail -->
+    <path d="M48,54 Q56,58 58,68 Q52,64 48,60" fill="#bf360c"/>
+  </svg>`,
+
+  tidalyn: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <!-- Tidalyn: prime-number dolphin -->
+    <!-- sonar waves -->
+    <path d="M22,36 Q14,36 10,42" stroke="#81d4fa" stroke-width="1" fill="none" opacity="0.4"/>
+    <path d="M22,40 Q12,40 8,48" stroke="#81d4fa" stroke-width="1" fill="none" opacity="0.3"/>
+    <!-- body -->
+    <ellipse cx="44" cy="44" rx="20" ry="12" fill="#0288d1"/>
+    <!-- head/rostrum -->
+    <path d="M28,40 Q22,44 28,48 Q36,52 36,44 Q36,36 28,40Z" fill="#0277bd"/>
+    <ellipse cx="24" cy="44" rx="5" ry="3" fill="#039be5"/>
+    <!-- dorsal fin -->
+    <path d="M44,32 Q48,20 54,28 Q50,32 44,36Z" fill="#0288d1"/>
+    <!-- tail fin -->
+    <path d="M62,40 Q72,34 72,48 Q68,44 62,48Z" fill="#0277bd"/>
+    <!-- pectoral fin -->
+    <path d="M36,48 Q32,56 40,58 Q42,52 40,48Z" fill="#0288d1"/>
+    <!-- eye -->
+    <circle cx="30" cy="42" r="3.5" fill="#e1f5fe"/>
+    <circle cx="30" cy="42" r="2" fill="#01579b"/>
+    <circle cx="29" cy="41" r="0.8" fill="#fff"/>
+    <!-- prime number markings -->
+    <text x="44" y="47" font-size="7" fill="#e1f5fe" opacity="0.8" font-family="monospace">2 3 5</text>
+    <text x="46" y="54" font-size="6" fill="#81d4fa" opacity="0.6" font-family="monospace">7 11</text>
+    <!-- glow -->
+    <ellipse cx="44" cy="44" rx="22" ry="14" fill="none" stroke="#29b6f6" stroke-width="1" opacity="0.3"/>
+  </svg>`,
+
+  mosswyn: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <!-- Mosswyn: moss spirit wisp — a small deer made of living vines -->
+    <!-- back legs -->
+    <line x1="38" y1="62" x2="34" y2="72" stroke="#2e7d32" stroke-width="4" stroke-linecap="round"/>
+    <line x1="46" y1="62" x2="50" y2="72" stroke="#2e7d32" stroke-width="4" stroke-linecap="round"/>
+    <!-- body -->
+    <ellipse cx="42" cy="54" rx="14" ry="10" fill="#388e3c"/>
+    <ellipse cx="42" cy="52" rx="11" ry="8" fill="#43a047"/>
+    <!-- moss texture blobs -->
+    <circle cx="36" cy="50" r="4" fill="#66bb6a" opacity="0.6"/>
+    <circle cx="44" cy="48" r="3" fill="#81c784" opacity="0.5"/>
+    <circle cx="50" cy="52" r="3.5" fill="#4caf50" opacity="0.6"/>
+    <!-- neck -->
+    <ellipse cx="36" cy="44" rx="5" ry="7" fill="#388e3c"/>
+    <!-- head -->
+    <ellipse cx="34" cy="36" rx="9" ry="8" fill="#43a047"/>
+    <!-- snout -->
+    <ellipse cx="28" cy="39" rx="5" ry="3.5" fill="#66bb6a"/>
+    <ellipse cx="27" cy="40" rx="2" ry="1.5" fill="#1b5e20"/>
+    <!-- antlers (vines) -->
+    <path d="M30,28 Q26,20 22,14" stroke="#2e7d32" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M26,20 Q20,18 18,12" stroke="#2e7d32" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M24,18 Q22,14 26,10" stroke="#2e7d32" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M38,27 Q40,18 38,10" stroke="#388e3c" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M40,20 Q44,16 46,10" stroke="#388e3c" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- tiny leaves on antlers -->
+    <ellipse cx="22" cy="14" rx="3" ry="2" fill="#a5d6a7" transform="rotate(-30,22,14)"/>
+    <ellipse cx="18" cy="12" rx="2.5" ry="1.5" fill="#c8e6c9" transform="rotate(20,18,12)"/>
+    <ellipse cx="38" cy="10" rx="2.5" ry="1.5" fill="#a5d6a7"/>
+    <!-- eye -->
+    <ellipse cx="32" cy="34" rx="3.5" ry="3.5" fill="#c8e6c9"/>
+    <circle cx="32" cy="34" r="2" fill="#1b5e20"/>
+    <circle cx="31" cy="33" r="0.8" fill="#fff"/>
+    <!-- front legs -->
+    <line x1="32" y1="58" x2="28" y2="70" stroke="#2e7d32" stroke-width="4" stroke-linecap="round"/>
+    <line x1="38" y1="60" x2="36" y2="72" stroke="#388e3c" stroke-width="3.5" stroke-linecap="round"/>
+  </svg>`,
+
+  cryston: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <!-- Cryston: crystal golem -->
+    <!-- crystal shards around body -->
+    <polygon points="20,20 24,34 16,34" fill="#78909c" opacity="0.7"/>
+    <polygon points="60,20 64,34 56,34" fill="#90a4ae" opacity="0.7"/>
+    <polygon points="12,42 20,52 12,58" fill="#78909c" opacity="0.6"/>
+    <polygon points="68,42 60,52 68,58" fill="#90a4ae" opacity="0.6"/>
+    <!-- main body: large crystal torso -->
+    <polygon points="40,20 58,34 54,62 26,62 22,34" fill="#546e7a" opacity="0.9"/>
+    <polygon points="40,20 58,34 54,62 26,62 22,34" fill="none" stroke="#b0bec5" stroke-width="1.5"/>
+    <!-- inner crystal facets -->
+    <polygon points="40,20 58,34 40,40" fill="#78909c" opacity="0.5"/>
+    <polygon points="40,20 22,34 40,40" fill="#90a4ae" opacity="0.4"/>
+    <polygon points="40,40 58,34 54,62" fill="#546e7a" opacity="0.5"/>
+    <polygon points="40,40 22,34 26,62" fill="#607d8b" opacity="0.5"/>
+    <!-- light refractions -->
+    <line x1="40" y1="20" x2="40" y2="62" stroke="#eceff1" stroke-width="0.8" opacity="0.3"/>
+    <line x1="22" y1="34" x2="58" y2="34" stroke="#eceff1" stroke-width="0.8" opacity="0.3"/>
+    <!-- glowing core -->
+    <circle cx="40" cy="40" r="8" fill="#b2ebf2" opacity="0.35"/>
+    <circle cx="40" cy="40" r="4" fill="#e1f5fe" opacity="0.5"/>
+    <!-- eyes (embedded gems) -->
+    <polygon points="36,36 40,32 44,36 40,40" fill="#00bcd4" opacity="0.9"/>
+    <circle cx="40" cy="36" r="2" fill="#e1f5fe"/>
+    <!-- legs -->
+    <rect x="29" y="62" width="8" height="8" rx="1" fill="#455a64"/>
+    <rect x="43" y="62" width="8" height="8" rx="1" fill="#546e7a"/>
+    <!-- crown crystal -->
+    <polygon points="40,14 37,21 43,21" fill="#80deea" opacity="0.9"/>
+  </svg>`,
+
+  zephrix: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <!-- Zephrix: chaos wind sprite — swirling form -->
+    <!-- outer wind spirals -->
+    <path d="M40,40 Q54,20 66,30 Q72,42 58,52 Q44,60 32,48 Q20,36 34,24 Q46,14 56,26" stroke="#80cbc4" stroke-width="2" fill="none" opacity="0.5"/>
+    <path d="M40,40 Q28,18 16,28 Q10,42 24,52 Q38,62 50,50" stroke="#b2dfdb" stroke-width="1.5" fill="none" opacity="0.4"/>
+    <!-- core vortex -->
+    <circle cx="40" cy="40" r="16" fill="#004d40" opacity="0.6"/>
+    <circle cx="40" cy="40" r="11" fill="#00695c" opacity="0.7"/>
+    <circle cx="40" cy="40" r="7" fill="#00897b" opacity="0.8"/>
+    <!-- central face -->
+    <circle cx="40" cy="40" r="5" fill="#80cbc4"/>
+    <!-- eyes: swirling -->
+    <circle cx="37" cy="39" r="2" fill="#004d40"/>
+    <circle cx="43" cy="39" r="2" fill="#004d40"/>
+    <circle cx="37" cy="39" r="0.8" fill="#e0f2f1"/>
+    <circle cx="43" cy="39" r="0.8" fill="#e0f2f1"/>
+    <!-- chaos symbols -->
+    <text x="14" y="22" font-size="9" fill="#b2dfdb" opacity="0.7" font-family="serif">∞</text>
+    <text x="58" y="64" font-size="9" fill="#80cbc4" opacity="0.6" font-family="serif">∅</text>
+    <text x="58" y="22" font-size="8" fill="#b2dfdb" opacity="0.5" font-family="serif">?</text>
+    <!-- floating debris particles -->
+    <circle cx="22" cy="28" r="2" fill="#b2dfdb" opacity="0.7"/>
+    <circle cx="60" cy="28" r="1.5" fill="#80cbc4" opacity="0.6"/>
+    <circle cx="18" cy="52" r="1.5" fill="#b2dfdb" opacity="0.5"/>
+    <circle cx="62" cy="52" r="2" fill="#80cbc4" opacity="0.7"/>
+    <rect x="30" y="18" width="4" height="4" rx="1" fill="#4db6ac" opacity="0.5" transform="rotate(20,32,20)"/>
+    <rect x="52" y="58" width="3" height="3" rx="1" fill="#4db6ac" opacity="0.5" transform="rotate(45,53,59)"/>
+  </svg>`,
+
+  embrix: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <!-- Embrix: logic lion of ember -->
+    <!-- flame mane -->
+    <ellipse cx="40" cy="34" rx="24" ry="22" fill="#e65100" opacity="0.6"/>
+    <ellipse cx="32" cy="26" rx="10" ry="13" fill="#ff6d00" opacity="0.5" transform="rotate(-15,32,26)"/>
+    <ellipse cx="48" cy="26" rx="10" ry="13" fill="#ff6d00" opacity="0.5" transform="rotate(15,48,26)"/>
+    <ellipse cx="40" cy="20" rx="8" ry="12" fill="#ffab40" opacity="0.4"/>
+    <!-- mane flame tips -->
+    <polygon points="22,22 26,14 30,22" fill="#ffca28" opacity="0.6"/>
+    <polygon points="40,12 43,4 46,12" fill="#ffca28" opacity="0.7"/>
+    <polygon points="50,22 54,14 58,22" fill="#ffca28" opacity="0.6"/>
+    <polygon points="18,34 14,26 22,32" fill="#ff9800" opacity="0.5"/>
+    <polygon points="62,34 66,26 58,32" fill="#ff9800" opacity="0.5"/>
+    <!-- head -->
+    <ellipse cx="40" cy="36" rx="17" ry="15" fill="#d84315"/>
+    <!-- brow ridge -->
+    <path d="M26,30 Q40,26 54,30" stroke="#bf360c" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- snout -->
+    <ellipse cx="40" cy="42" rx="10" ry="7" fill="#e64a19"/>
+    <ellipse cx="40" cy="44" rx="6" ry="3.5" fill="#bf360c"/>
+    <!-- nose -->
+    <ellipse cx="40" cy="42" rx="3" ry="2" fill="#7b1a00"/>
+    <!-- fierce eyes -->
+    <ellipse cx="32" cy="34" rx="5" ry="4" fill="#f0d080"/>
+    <ellipse cx="48" cy="34" rx="5" ry="4" fill="#f0d080"/>
+    <ellipse cx="32" cy="34" rx="2.5" ry="3" fill="#1a0800"/>
+    <ellipse cx="48" cy="34" rx="2.5" ry="3" fill="#1a0800"/>
+    <circle cx="31" cy="33" r="1" fill="#fff"/>
+    <circle cx="47" cy="33" r="1" fill="#fff"/>
+    <!-- theorem marking on forehead -->
+    <text x="36" y="28" font-size="7" fill="#ffca28" opacity="0.8" font-family="serif">∀x</text>
+    <!-- body -->
+    <ellipse cx="40" cy="60" rx="14" ry="10" fill="#bf360c"/>
+    <!-- paws -->
+    <ellipse cx="28" cy="68" rx="7" ry="4" fill="#bf360c"/>
+    <ellipse cx="52" cy="68" rx="7" ry="4" fill="#bf360c"/>
+    <!-- ember glow -->
+    <ellipse cx="40" cy="36" rx="22" ry="20" fill="none" stroke="#ff9800" stroke-width="1" opacity="0.3"/>
+  </svg>`,
+};
+
+function creatureSVG(id, size=64) {
+  const svg = SVGS[id] || `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="30" fill="#3d2f6e"/><text x="40" y="46" text-anchor="middle" font-size="24" fill="#f0d080">?</text></svg>`;
+  return `<div style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;">${svg}</div>`;
+}
+
 const CREATURES = [
-  { id:'lumox',   name:'Lumox',   icon:'🦋', type:'arcane', hp:28, atk:10, flavor:'A moth drawn to ancient runes, its wings pulse with stored equations.', lore:'Sequence Adept' },
-  { id:'pyrix',   name:'Pyrix',   icon:'🦊', type:'flame',  hp:30, atk:12, flavor:'A fox of ember and logic, it ignites only for those who understand order.', lore:'Pattern Weaver' },
-  { id:'aquox',   name:'Aquox',   icon:'🐙', type:'tide',   hp:35, atk:8,  flavor:'Eight arms, each counting in a different base. Its ink rewrites logic.', lore:'Grid Master' },
-  { id:'stonyx',  name:'Stonyx',  icon:'🦔', type:'stone',  hp:40, atk:7,  flavor:'A living stone that only moves when the world around it makes sense.', lore:'Steady Solver' },
-  { id:'vexwing', name:'Vexwing', icon:'🦅', type:'wisp',   hp:22, atk:15, flavor:'Faster than thought, it challenges the mind before the eye can follow.', lore:'Speed Thinker' },
-  { id:'glimmer', name:'Glimmer', icon:'✨', type:'arcane', hp:24, atk:11, flavor:'A spark of pure deduction made manifest, born in a scholar\'s epiphany.', lore:'Logic Born' },
-  { id:'torchid', name:'Torchid', icon:'🐲', type:'flame',  hp:32, atk:14, flavor:'An orchid-dragon hybrid. Its fire blooms only when fed correct answers.', lore:'Flame Thinker' },
-  { id:'tidalyn', name:'Tidalyn', icon:'🐬', type:'tide',   hp:33, atk:10, flavor:'Sings in prime numbers. Its sonar maps the logic grid of the sea.', lore:'Sonic Solver' },
-  { id:'mosswyn', name:'Mosswyn', icon:'🌿', type:'wisp',   hp:28, atk:9,  flavor:'A moss-spirit that grows through the cracks of incomplete arguments.', lore:'Growth Mind' },
-  { id:'cryston', name:'Cryston', icon:'💎', type:'stone',  hp:38, atk:8,  flavor:'Its facets refract truth. Each face a different logical proposition.', lore:'Prism Logic' },
-  { id:'zephrix', name:'Zephrix', icon:'🌪️', type:'wisp',   hp:20, atk:16, flavor:'A wind that blows only if the pattern is complete. Unpredictable, precise.', lore:'Chaos Solver' },
-  { id:'embrix',  name:'Embrix',  icon:'🦁', type:'flame',  hp:36, atk:13, flavor:'A lion of living ember. Its roar is a theorem, its silence a paradox.', lore:'Logic Lion' },
+  { id:'lumox',   name:'Lumox',   type:'arcane', hp:28, atk:10, flavor:'A moth drawn to ancient runes, its wings pulse with stored equations.', lore:'Sequence Adept' },
+  { id:'pyrix',   name:'Pyrix',   type:'flame',  hp:30, atk:12, flavor:'A fox of ember and logic, it ignites only for those who understand order.', lore:'Pattern Weaver' },
+  { id:'aquox',   name:'Aquox',   type:'tide',   hp:35, atk:8,  flavor:'Eight arms, each counting in a different base. Its ink rewrites logic.', lore:'Grid Master' },
+  { id:'stonyx',  name:'Stonyx',  type:'stone',  hp:40, atk:7,  flavor:'A living stone that only moves when the world around it makes sense.', lore:'Steady Solver' },
+  { id:'vexwing', name:'Vexwing', type:'wisp',   hp:22, atk:15, flavor:'Faster than thought, it challenges the mind before the eye can follow.', lore:'Speed Thinker' },
+  { id:'glimmer', name:'Glimmer', type:'arcane', hp:24, atk:11, flavor:'A spark of pure deduction made manifest, born in a scholar\'s epiphany.', lore:'Logic Born' },
+  { id:'torchid', name:'Torchid', type:'flame',  hp:32, atk:14, flavor:'An orchid-dragon hybrid. Its fire blooms only when fed correct answers.', lore:'Flame Thinker' },
+  { id:'tidalyn', name:'Tidalyn', type:'tide',   hp:33, atk:10, flavor:'Sings in prime numbers. Its sonar maps the logic grid of the sea.', lore:'Sonic Solver' },
+  { id:'mosswyn', name:'Mosswyn', type:'wisp',   hp:28, atk:9,  flavor:'A moss-spirit that grows through the cracks of incomplete arguments.', lore:'Growth Mind' },
+  { id:'cryston', name:'Cryston', type:'stone',  hp:38, atk:8,  flavor:'Its facets refract truth. Each face a different logical proposition.', lore:'Prism Logic' },
+  { id:'zephrix', name:'Zephrix', type:'wisp',   hp:20, atk:16, flavor:'A wind that blows only if the pattern is complete. Unpredictable, precise.', lore:'Chaos Solver' },
+  { id:'embrix',  name:'Embrix',  type:'flame',  hp:36, atk:13, flavor:'A lion of living ember. Its roar is a theorem, its silence a paradox.', lore:'Logic Lion' },
 ];
 
 const ZONES = [
@@ -816,7 +1258,7 @@ window.addEventListener('DOMContentLoaded', () => {
 function switchTab(screenId, btn) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(screenId).classList.add('active');
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#tab-nav .nav-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   if (screenId === 'collection-screen') renderCollection();
 }
@@ -864,14 +1306,14 @@ function showZoneMenu(zone, creature, alreadyOwn) {
   openPuzzleOverlay();
   document.getElementById('puzzle-title').textContent = zone.name;
   document.getElementById('puzzle-subtitle').textContent = 'What will you do?';
-  document.getElementById('puzzle-target-icon').textContent = zone.icon;
+  document.getElementById('puzzle-target-icon').innerHTML = creatureSVG(creature.id, 72);
   document.getElementById('puzzle-creature-name').textContent = '';
   document.getElementById('puzzle-hint').textContent = '';
   document.getElementById('puzzle-feedback').style.display = 'none';
   document.getElementById('tries-display').innerHTML = '';
 
   let html = `<p style="color:var(--muted);font-size:0.9rem;margin-bottom:16px;font-style:italic;">
-    A wild <strong style="color:var(--gold2)">${creature.name}</strong> ${creature.icon} stirs in the ${zone.name}.
+    A wild <strong style="color:var(--gold2)">${creature.name}</strong> stirs in the ${zone.name}.
     ${alreadyOwn ? '<br><em style="color:var(--border2);">(Already in bestiary)</em>' : ''}
   </p>`;
   document.getElementById('puzzle-content').innerHTML = html;
@@ -915,7 +1357,7 @@ function startCapturePuzzle(creature, zone) {
 function openCaptureFlow(creature, puzzleType) {
   document.getElementById('puzzle-title').textContent = 'Wild Encounter!';
   document.getElementById('puzzle-subtitle').textContent = `Solve the ${puzzleType} puzzle to capture`;
-  document.getElementById('puzzle-target-icon').textContent = creature.icon;
+  document.getElementById('puzzle-target-icon').innerHTML = creatureSVG(creature.id, 80);
   document.getElementById('puzzle-creature-name').textContent = creature.name;
   document.getElementById('puzzle-feedback').style.display = 'none';
   document.getElementById('puzzle-actions').innerHTML = '';
@@ -924,6 +1366,16 @@ function openCaptureFlow(creature, puzzleType) {
   puzzleState = { creature, type: puzzleType, tries: 0, triesMax, solved: false };
   renderTries();
   generatePuzzle(puzzleType);
+}
+
+function toggleHint() {
+  const el = document.getElementById('puzzle-hint');
+  if (!el || !puzzleState) return;
+  const shown = el._shown;
+  el.innerHTML = shown
+    ? '<span id="hint-bulb" style="cursor:pointer;user-select:none;" onclick="toggleHint()">💡</span>'
+    : `<span id="hint-bulb" style="cursor:pointer;user-select:none;" onclick="toggleHint()">💡</span> ${puzzleState.hint}`;
+  el._shown = !shown;
 }
 
 function renderTries() {
@@ -999,8 +1451,11 @@ function generateSequencePuzzle() {
 
   puzzleState.answer = answer;
   puzzleState.seqBlankIdx = blankIdx;
+  puzzleState.hint = hint;
 
-  document.getElementById('puzzle-hint').textContent = '💡 ' + hint;
+  const hintEl = document.getElementById('puzzle-hint');
+  hintEl.innerHTML = '<span id="hint-bulb" style="cursor:pointer;user-select:none;" onclick="toggleHint()">💡</span>';
+  hintEl._shown = false;
 
   let seqHtml = '<div class="seq-row">';
   seq.forEach((n, i) => {
@@ -1013,7 +1468,7 @@ function generateSequencePuzzle() {
   seqHtml += '</div>';
   seqHtml += '<div class="seq-row">';
   options.forEach(opt => {
-    seqHtml += `<div class="seq-cell" style="cursor:pointer" onclick="checkSequenceAnswer(${opt})">${opt}</div>`;
+    seqHtml += `<div class="seq-cell option" onclick="checkSequenceAnswer(${opt})">${opt}</div>`;
   });
   seqHtml += '</div>';
 
@@ -1064,8 +1519,11 @@ function generateGridPuzzle() {
   puzzleState.gridGiven = givenMask;
   puzzleState.gridCurrent = grid.flat().map((v,i) => givenMask[i] ? v : 0);
   puzzleState.selectedGridCell = null;
+  puzzleState.hint = 'Each row & column must contain 1, 2 and 3 exactly once.';
 
-  document.getElementById('puzzle-hint').textContent = '💡 Each row & column must contain 1, 2 and 3 exactly once.';
+  const hintEl = document.getElementById('puzzle-hint');
+  hintEl.innerHTML = '<span id="hint-bulb" style="cursor:pointer;user-select:none;" onclick="toggleHint()">💡</span>';
+  hintEl._shown = false;
   renderGridPuzzle();
 }
 
@@ -1141,12 +1599,12 @@ function captureCreature(creature) {
   if (alreadyIdx >= 0) {
     // Level up if already owned
     state.collection[alreadyIdx].level++;
-    showToast(`${creature.icon} ${creature.name} leveled up! Lv.${state.collection[alreadyIdx].level}`);
+    showToast(`★ ${creature.name} leveled up! Lv.${state.collection[alreadyIdx].level}`);
   } else {
     const entry = { creatureId: creature.id, level: 1, maxHp: creature.hp, hp: creature.hp };
     state.collection.push(entry);
     if (state.party.length < 3) state.party.push(creature.id);
-    showToast(`${creature.icon} ${creature.name} captured!`);
+    showToast(`✦ ${creature.name} captured!`);
   }
   state.essence += 10;
   updateHeader();
@@ -1173,7 +1631,7 @@ function renderCollection() {
     const div = document.createElement('div');
     div.className = 'creature-card' + (inParty ? ' selected' : '');
     div.innerHTML = `
-      <div class="c-icon">${c.icon}</div>
+      <div class="c-icon">${creatureSVG(c.id, 60)}</div>
       <div class="c-name">${c.name}</div>
       <div class="c-level">Lv.${entry.level}</div>
       <div class="c-type-badge type-${c.type}">${c.type}</div>
@@ -1185,7 +1643,7 @@ function renderCollection() {
 }
 
 function showDetail(creature, entry) {
-  document.getElementById('detail-icon').textContent = creature.icon;
+  document.getElementById('detail-icon').innerHTML = `<div class="detail-icon-frame">${creatureSVG(creature.id, 160)}</div>`;
   document.getElementById('detail-name').textContent = creature.name;
   document.getElementById('detail-flavor').textContent = creature.flavor;
 
@@ -1279,7 +1737,7 @@ function renderBattleArena() {
   document.getElementById('battle-arena').innerHTML = `
     <div class="battle-phase-title">Turn ${bs.turn} — ${bs.phase === 'player' ? 'Your Move' : bs.phase === 'enemy' ? 'Enemy Turn' : bs.phase === 'puzzle' ? 'Puzzle Phase' : 'Battle Over'}</div>
     <div class="combatant">
-      <div class="combatant-icon" id="my-icon">${bs.mine.def.icon}</div>
+      <div class="combatant-icon" id="my-icon">${creatureSVG(bs.mine.def.id, 50)}</div>
       <div class="combatant-info">
         <div class="combatant-name">${bs.mine.def.name} (Lv.${bs.mine.entry.level})</div>
         <div class="hp-bar"><div class="hp-fill mine" style="width:${mHpPct}%"></div></div>
@@ -1288,7 +1746,7 @@ function renderBattleArena() {
     </div>
     <div class="vs-divider">— VS —</div>
     <div class="combatant">
-      <div class="combatant-icon" id="enemy-icon">${bs.enemy.def.icon}</div>
+      <div class="combatant-icon" id="enemy-icon">${creatureSVG(bs.enemy.def.id, 50)}</div>
       <div class="combatant-info">
         <div class="combatant-name">${battleState.zone.boss.name}'s ${bs.enemy.def.name}</div>
         <div class="hp-bar"><div class="hp-fill enemy" style="width:${eHpPct}%"></div></div>
@@ -1372,7 +1830,7 @@ function startBattlePuzzle() {
         ${seq.map(n => `<div class="seq-cell ${n==='?'?'answer-slot':''}">${n}</div>`).join('')}
       </div>
       <div class="battle-seq">
-        ${opts.map(o => `<div class="seq-cell" style="cursor:pointer" onclick="battlePuzzleAnswer(${o},${answer})">${o}</div>`).join('')}
+        ${opts.map(o => `<div class="seq-cell option" onclick="battlePuzzleAnswer(${o},${answer})">${o}</div>`).join('')}
       </div>
     </div>
   `;
