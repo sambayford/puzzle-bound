@@ -574,7 +574,8 @@
     Magical creatures are bound by ancient logic. Prove your mind worthy,
     and they shall serve you. Fail, and face the void.
   </p>
-  <button class="btn btn-large" onclick="startGame()">Begin Journey</button>
+  <button class="btn btn-large" id="continue-btn" style="display:none;" onclick="continueGame()">Continue Journey</button>
+  <button class="btn btn-large" id="new-game-btn" onclick="newGame()">Begin Journey</button>
   <p style="color:var(--muted);font-size:0.85rem;max-width:340px;text-align:center;line-height:1.6;">
     Capture creatures by solving logic puzzles. Build your party and defeat rival Puzzlemasters.
   </p>
@@ -589,6 +590,8 @@
     <div id="header-info">
       <span id="hdr-party">Party: <span id="hdr-party-count">0</span>/3</span>
       <span id="hdr-gold">Essence: <span id="hdr-gold-val">0</span></span>
+      <span id="save-indicator" style="color:var(--green);opacity:0;transition:opacity 0.4s;font-size:0.8rem;">💾 Saved</span>
+      <button class="btn btn-danger" style="padding:4px 10px;font-size:0.65rem;" onclick="deleteSave()">Erase</button>
     </div>
   </div>
 
@@ -723,13 +726,60 @@ const ZONES = [
 //  STATE
 // ════════════════════════════════════════
 
-let state = {
-  collection: [],    // { creatureId, level, hp, maxHp }
-  party: [],         // up to 3 creature IDs from collection
+const SAVE_KEY = 'puzzlebound_save_v1';
+
+const DEFAULT_STATE = () => ({
+  collection: [],
+  party: [],
   essence: 0,
   clearedZones: [],
   bossDefeated: [],
-};
+});
+
+let state = DEFAULT_STATE();
+
+// ════════════════════════════════════════
+//  SAVE / LOAD
+// ════════════════════════════════════════
+
+function saveGame() {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+    flashSaveIndicator();
+  } catch(e) { console.warn('Save failed', e); }
+}
+
+function loadGame() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (raw) {
+      const saved = JSON.parse(raw);
+      // Merge with defaults so new keys are always present
+      state = Object.assign(DEFAULT_STATE(), saved);
+      return true;
+    }
+  } catch(e) { console.warn('Load failed', e); }
+  return false;
+}
+
+function deleteSave() {
+  if (!confirm('Erase all progress and start fresh?')) return;
+  localStorage.removeItem(SAVE_KEY);
+  state = DEFAULT_STATE();
+  // Return to title
+  document.getElementById('main-wrapper').style.display = 'none';
+  document.getElementById('title-screen').classList.add('active');
+  showToast('Save data erased.');
+}
+
+let saveFlashTimeout = null;
+function flashSaveIndicator() {
+  const el = document.getElementById('save-indicator');
+  if (!el) return;
+  el.style.opacity = '1';
+  if (saveFlashTimeout) clearTimeout(saveFlashTimeout);
+  saveFlashTimeout = setTimeout(() => { el.style.opacity = '0'; }, 1800);
+}
 
 // ════════════════════════════════════════
 //  GAME INIT
@@ -741,6 +791,27 @@ function startGame() {
   renderZones();
   updateHeader();
 }
+
+function continueGame() {
+  startGame();
+}
+
+function newGame() {
+  if (localStorage.getItem(SAVE_KEY)) {
+    if (!confirm('Start a new game? Your current save will be erased.')) return;
+    localStorage.removeItem(SAVE_KEY);
+    state = DEFAULT_STATE();
+  }
+  startGame();
+}
+
+// Check for existing save on page load
+window.addEventListener('DOMContentLoaded', () => {
+  if (loadGame()) {
+    document.getElementById('continue-btn').style.display = 'inline-block';
+    document.getElementById('new-game-btn').textContent = 'New Journey';
+  }
+});
 
 function switchTab(screenId, btn) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -1079,6 +1150,7 @@ function captureCreature(creature) {
   }
   state.essence += 10;
   updateHeader();
+  saveGame();
   closePuzzle();
 }
 
@@ -1136,7 +1208,7 @@ function showDetail(creature, entry) {
     pb.className = 'btn btn-success party-btn';
     pb.style.marginTop = '8px';
     pb.textContent = 'Add to Party';
-    pb.onclick = () => { state.party.push(creature.id); closeDetail(); renderCollection(); updateHeader(); };
+    pb.onclick = () => { state.party.push(creature.id); saveGame(); closeDetail(); renderCollection(); updateHeader(); };
     box.querySelector('div:last-child').prepend(pb);
   } else if (inParty && state.party.length > 1) {
     const pb = document.createElement('button');
@@ -1145,7 +1217,7 @@ function showDetail(creature, entry) {
     pb.textContent = 'Remove from Party';
     pb.onclick = () => {
       state.party = state.party.filter(id => id !== creature.id);
-      closeDetail(); renderCollection(); updateHeader();
+      saveGame(); closeDetail(); renderCollection(); updateHeader();
     };
     box.querySelector('div:last-child').prepend(pb);
   }
@@ -1355,6 +1427,7 @@ function battleVictory() {
   state.essence += 30;
   updateHeader();
   renderZones();
+  saveGame();
 
   document.getElementById('battle-arena').innerHTML += `
     <div style="text-align:center;margin-top:12px;">
