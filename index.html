@@ -2062,31 +2062,13 @@ function renderBattleActions() {
   if (bs.phase === 'player') {
     area.innerHTML = `
       <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px;">
-        <button class="btn btn-success" onclick="playerAttack()">⚔️ Normal Attack</button>
-        <button class="btn" onclick="startBattlePuzzle()">🧩 Puzzle Strike</button>
+        <button class="btn btn-success" onclick="startBattlePuzzle()">🧩 Puzzle Strike</button>
         <button class="btn btn-danger" onclick="fleeBattle()">🏃 Flee</button>
       </div>
-      <p class="battle-puzzle-prompt">Puzzle Strike: Solve a mini-puzzle for bonus damage!</p>
+      <p class="battle-puzzle-prompt">Solve the puzzle to attack!</p>
     `;
   } else if (bs.phase === 'end') {
     area.innerHTML = '';
-  }
-}
-
-function playerAttack() {
-  const bs = battleState;
-  const dmg = bs.mine.atk + Math.floor(Math.random() * 4);
-  bs.enemy.hp = Math.max(0, bs.enemy.hp - dmg);
-  setBattleLog(`${bs.mine.def.name} strikes for ${dmg} damage!`);
-  animateDamage('enemy-icon');
-
-  if (bs.enemy.hp <= 0) {
-    battleVictory();
-  } else {
-    bs.phase = 'enemy';
-    bs.turn++;
-    renderBattleArena();
-    setTimeout(enemyTurn, 900);
   }
 }
 
