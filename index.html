@@ -1899,6 +1899,10 @@ function captureCreature(creature) {
   updateHeader();
   saveGame();
   closePuzzle();
+  if (currentZone && currentZoneCreature && currentZoneCreature.id === creature.id) {
+    const cNode = document.getElementById('zone-node-creature');
+    if (cNode) cNode.style.display = 'none';
+  }
 }
 
 // ════════════════════════════════════════
@@ -2175,6 +2179,10 @@ function battleVictory() {
   updateHeader();
   renderZones();
   saveGame();
+  if (currentZone && currentZone.id === bs.zone.id) {
+    const bNode = document.getElementById('zone-node-boss');
+    if (bNode) bNode.style.display = 'none';
+  }
 
   document.getElementById('battle-arena').innerHTML += `
     <div style="text-align:center;margin-top:12px;">
