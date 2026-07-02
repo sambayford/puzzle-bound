@@ -203,6 +203,118 @@
   .zone-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
   .zone-badge { font-size: 0.75rem; color: var(--border2); margin-top: 8px; }
 
+  /* ── ZONE SCENE (explorable illustrated area) ── */
+  #zone-scene-screen { flex: 1; padding: 14px; gap: 12px; }
+  #zone-scene-header { display: flex; align-items: center; gap: 12px; }
+  #zone-scene-header .btn { padding: 8px 14px; font-size: 0.8rem; }
+  .zone-scene-title { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1rem; letter-spacing: 0.05em; }
+  .zone-scene-hint { text-align: center; color: var(--muted); font-size: 0.8rem; font-style: italic; }
+
+  .zone-scene {
+    position: relative;
+    flex: 1;
+    min-height: 340px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    cursor: crosshair;
+    box-shadow: inset 0 0 60px rgba(0,0,0,0.5), 0 8px 30px rgba(0,0,0,0.4);
+    touch-action: none;
+  }
+  .zone-scene[data-zone="forest"] {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(123,79,207,0.25) 0%, transparent 55%),
+      linear-gradient(180deg, #17241a 0%, #142218 55%, #0c1610 100%);
+  }
+  .zone-scene[data-zone="coast"] {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(41,128,185,0.3) 0%, transparent 55%),
+      linear-gradient(180deg, #0d2436 0%, #123449 45%, #0a2f42 100%);
+  }
+  .zone-scene[data-zone="volcano"] {
+    background:
+      radial-gradient(ellipse at 50% 10%, rgba(230,126,34,0.3) 0%, transparent 55%),
+      linear-gradient(180deg, #2a1410 0%, #22100c 55%, #180a08 100%);
+  }
+  .zone-scene[data-zone="crystal"] {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(160,107,255,0.28) 0%, transparent 55%),
+      linear-gradient(180deg, #140f28 0%, #1a1338 55%, #0d0a1c 100%);
+  }
+
+  .zone-ground {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 40%;
+    background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.35) 100%);
+  }
+
+  .decor { position: absolute; pointer-events: none; opacity: 0.9; }
+  .decor-tree {
+    width: 34px; height: 46px;
+    background: linear-gradient(180deg, #2f5233, #1b3620);
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    filter: drop-shadow(0 6px 6px rgba(0,0,0,0.4));
+  }
+  .decor-rock {
+    width: 30px; height: 20px; border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
+    background: linear-gradient(180deg, #5a5450, #38332f);
+  }
+  .decor-crystal {
+    width: 26px; height: 40px;
+    background: linear-gradient(180deg, #b98bff, #6a3fc0);
+    clip-path: polygon(50% 0%, 100% 35%, 78% 100%, 22% 100%, 0% 35%);
+    filter: drop-shadow(0 0 10px rgba(160,107,255,0.5));
+  }
+  .decor-wave {
+    width: 90px; height: 10px; border-radius: 50%;
+    background: rgba(120,190,230,0.28);
+    box-shadow: 0 14px 0 -4px rgba(120,190,230,0.18);
+  }
+  .decor-ember {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: radial-gradient(circle, #ffb14e, #e67e22 70%, transparent);
+    filter: drop-shadow(0 0 8px #e67e22);
+  }
+  .decor-lava {
+    width: 70px; height: 30px; border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(230,126,34,0.55), transparent 70%);
+  }
+
+  .zone-node {
+    position: absolute;
+    width: 52px; height: 52px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,168,76,0.25), transparent 70%);
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    animation: nodeFloat 2.4s ease-in-out infinite;
+  }
+  .zone-node.boss-node { background: radial-gradient(circle, rgba(192,57,43,0.3), transparent 70%); }
+  .zone-node-icon { font-size: 1.8rem; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6)); }
+  .zone-node-label {
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    white-space: nowrap; font-size: 0.65rem; color: var(--gold2);
+    background: rgba(10,8,18,0.75); padding: 2px 6px; border-radius: 3px; margin-top: 2px;
+  }
+  @keyframes nodeFloat { 0%,100% { margin-top: 0; } 50% { margin-top: -6px; } }
+
+  #zone-player {
+    position: absolute;
+    width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0 4px 4px rgba(0,0,0,0.6));
+    z-index: 5;
+  }
+  #zone-player::after {
+    content: '';
+    position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
+    width: 22px; height: 8px; border-radius: 50%;
+    background: rgba(0,0,0,0.45);
+    z-index: -1;
+  }
+
   /* ── NAV BUTTONS ── */
   #tab-nav .nav-btn {
     flex: 1;
@@ -665,6 +777,21 @@
   <div id="map-screen" class="screen active" style="flex:1;overflow-y:auto;">
     <div class="map-title">World Map — Choose a Zone</div>
     <div class="zones-grid" id="zones-grid"></div>
+  </div>
+
+  <div id="zone-scene-screen" class="screen">
+    <div id="zone-scene-header">
+      <button class="btn" onclick="leaveZoneScene()">← Map</button>
+      <div class="zone-scene-title" id="zone-scene-title"></div>
+    </div>
+    <div id="zone-scene" class="zone-scene" onclick="zoneSceneClick(event)">
+      <div class="zone-ground"></div>
+      <div id="zone-scene-decor"></div>
+      <div id="zone-node-creature" class="zone-node"></div>
+      <div id="zone-node-boss" class="zone-node boss-node"></div>
+      <div id="zone-player">🧍</div>
+    </div>
+    <p class="zone-scene-hint">Tap anywhere to walk. Walk up to a glowing spot to interact.</p>
   </div>
 
   <div id="collection-screen" class="screen" style="flex:1;overflow-y:auto;">
@@ -1133,7 +1260,15 @@ const ZONES = [
     creatures:['lumox','pyrix','mosswyn'],
     locked:false,
     puzzleTypes:['sequence','binary'],
-    boss:{ name:'Herbalist Vera', icon:'🧙‍♀️', creature:'stonyx' }
+    boss:{ name:'Herbalist Vera', icon:'🧙‍♀️', creature:'stonyx' },
+    spawn:{ x:50, y:82 },
+    nodes:{ creature:{ x:28, y:42 }, boss:{ x:74, y:30 } },
+    decor:[
+      {type:'tree', x:10, y:20, s:1.1}, {type:'tree', x:20, y:34, s:1.4},
+      {type:'tree', x:6, y:52, s:1.2}, {type:'tree', x:88, y:16, s:1.1},
+      {type:'tree', x:92, y:44, s:1.3}, {type:'tree', x:60, y:12, s:0.9},
+      {type:'rock', x:45, y:64, s:1}, {type:'rock', x:66, y:70, s:0.8},
+    ]
   },
   {
     id:'coast', name:'Riddle Coast', icon:'🌊',
@@ -1142,7 +1277,15 @@ const ZONES = [
     locked:true,
     requires:'forest',
     puzzleTypes:['grid','sequence'],
-    boss:{ name:'Tide Oracle', icon:'🧜', creature:'tidalyn' }
+    boss:{ name:'Tide Oracle', icon:'🧜', creature:'tidalyn' },
+    spawn:{ x:50, y:85 },
+    nodes:{ creature:{ x:24, y:38 }, boss:{ x:76, y:46 } },
+    decor:[
+      {type:'wave', x:10, y:24, s:1}, {type:'wave', x:50, y:18, s:1.3},
+      {type:'wave', x:82, y:26, s:0.9}, {type:'wave', x:30, y:56, s:1.1},
+      {type:'wave', x:66, y:62, s:1}, {type:'rock', x:14, y:68, s:1},
+      {type:'rock', x:90, y:72, s:1.1},
+    ]
   },
   {
     id:'volcano', name:'Volcano Peak', icon:'🌋',
@@ -1151,7 +1294,15 @@ const ZONES = [
     locked:true,
     requires:'coast',
     puzzleTypes:['grid','sequence'],
-    boss:{ name:'Pyromaster Dax', icon:'🧟', creature:'embrix' }
+    boss:{ name:'Pyromaster Dax', icon:'🧟', creature:'embrix' },
+    spawn:{ x:50, y:84 },
+    nodes:{ creature:{ x:30, y:46 }, boss:{ x:72, y:34 } },
+    decor:[
+      {type:'lava', x:20, y:30, s:1.2}, {type:'lava', x:76, y:56, s:1},
+      {type:'ember', x:35, y:20, s:1}, {type:'ember', x:60, y:14, s:0.8},
+      {type:'ember', x:85, y:32, s:1}, {type:'rock', x:12, y:58, s:1.3},
+      {type:'rock', x:55, y:68, s:1}, {type:'rock', x:90, y:70, s:1.1},
+    ]
   },
   {
     id:'crystal', name:'Crystal Caverns', icon:'💠',
@@ -1160,7 +1311,14 @@ const ZONES = [
     locked:true,
     requires:'volcano',
     puzzleTypes:['grid','sequence'],
-    boss:{ name:'The Void Sage', icon:'👁️', creature:'cryston' }
+    boss:{ name:'The Void Sage', icon:'👁️', creature:'cryston' },
+    spawn:{ x:50, y:85 },
+    nodes:{ creature:{ x:26, y:40 }, boss:{ x:74, y:38 } },
+    decor:[
+      {type:'crystal', x:12, y:24, s:1.2}, {type:'crystal', x:24, y:52, s:0.9},
+      {type:'crystal', x:88, y:20, s:1.1}, {type:'crystal', x:80, y:60, s:1},
+      {type:'crystal', x:50, y:14, s:0.8}, {type:'rock', x:60, y:70, s:1},
+    ]
   },
 ];
 
@@ -1291,14 +1449,145 @@ function renderZones() {
   });
 }
 
+let currentZone = null;
+let currentZoneCreature = null;
+let zoneMoving = false;
+let zoneMoveTimeout = null;
+
 function enterZone(zone) {
   // Pick random creature from zone
   const cId = zone.creatures[Math.floor(Math.random() * zone.creatures.length)];
-  const creature = CREATURES.find(c => c.id === cId);
-  const alreadyOwn = state.collection.find(e => e.creatureId === cId);
+  currentZoneCreature = CREATURES.find(c => c.id === cId);
+  currentZone = zone;
+  renderZoneScene(zone);
 
-  // Show zone menu
-  showZoneMenu(zone, creature, alreadyOwn);
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('zone-scene-screen').classList.add('active');
+}
+
+function leaveZoneScene() {
+  currentZone = null;
+  currentZoneCreature = null;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('map-screen').classList.add('active');
+  document.querySelectorAll('#tab-nav .nav-btn').forEach((b,i) => b.classList.toggle('active', i === 0));
+  renderZones();
+}
+
+// ── ZONE SCENE (illustrated explorable area) ──
+
+function renderZoneScene(zone) {
+  document.getElementById('zone-scene-title').textContent = zone.name;
+  const sceneEl = document.getElementById('zone-scene');
+  sceneEl.dataset.zone = zone.id;
+
+  // Decor
+  const decorLayer = document.getElementById('zone-scene-decor');
+  decorLayer.innerHTML = '';
+  (zone.decor || []).forEach(d => {
+    const el = document.createElement('div');
+    el.className = `decor decor-${d.type}`;
+    el.style.left = d.x + '%';
+    el.style.top = d.y + '%';
+    el.style.transform = `translate(-50%,-50%) scale(${d.s || 1})`;
+    decorLayer.appendChild(el);
+  });
+
+  // Creature node (always present)
+  const cNode = document.getElementById('zone-node-creature');
+  cNode.style.left = zone.nodes.creature.x + '%';
+  cNode.style.top = zone.nodes.creature.y + '%';
+  cNode.style.display = 'flex';
+  cNode.innerHTML = `<div class="zone-node-icon">${creatureSVG(currentZoneCreature.id, 40)}</div><div class="zone-node-label">${currentZoneCreature.name}</div>`;
+  cNode.onclick = (e) => { e.stopPropagation(); walkToNode(cNode); };
+
+  // Boss node (conditional, same rule as before)
+  const bNode = document.getElementById('zone-node-boss');
+  const bossAvailable = !state.bossDefeated.includes(zone.id) && state.party.length > 0;
+  if (bossAvailable) {
+    bNode.style.left = zone.nodes.boss.x + '%';
+    bNode.style.top = zone.nodes.boss.y + '%';
+    bNode.style.display = 'flex';
+    bNode.innerHTML = `<div class="zone-node-icon">${zone.boss.icon}</div><div class="zone-node-label">${zone.boss.name}</div>`;
+    bNode.onclick = (e) => { e.stopPropagation(); walkToNode(bNode); };
+  } else {
+    bNode.style.display = 'none';
+  }
+
+  // Reset player to spawn
+  const player = document.getElementById('zone-player');
+  player.style.transition = 'none';
+  player.style.left = zone.spawn.x + '%';
+  player.style.top = zone.spawn.y + '%';
+  zoneMoving = false;
+}
+
+function zoneSceneClick(e) {
+  if (zoneMoving) return;
+  const sceneEl = document.getElementById('zone-scene');
+  const rect = sceneEl.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  movePlayerTo(x, y);
+}
+
+function walkToNode(nodeEl) {
+  if (zoneMoving) return;
+  const sceneEl = document.getElementById('zone-scene');
+  const x = (parseFloat(nodeEl.style.left) / 100) * sceneEl.clientWidth;
+  const y = (parseFloat(nodeEl.style.top) / 100) * sceneEl.clientHeight;
+  movePlayerTo(x, y);
+}
+
+function movePlayerTo(x, y) {
+  const sceneEl = document.getElementById('zone-scene');
+  const player = document.getElementById('zone-player');
+  const w = sceneEl.clientWidth, h = sceneEl.clientHeight;
+  const pad = 20;
+  x = Math.max(pad, Math.min(w - pad, x));
+  y = Math.max(pad, Math.min(h - pad, y));
+
+  const curX = (parseFloat(player.style.left) / 100) * w;
+  const curY = (parseFloat(player.style.top) / 100) * h;
+  const dist = Math.hypot(x - curX, y - curY);
+  const duration = Math.min(1.6, Math.max(0.22, dist / 150));
+
+  player.style.transform = `translate(-50%,-50%) scaleX(${x < curX ? -1 : 1})`;
+  player.style.transition = `left ${duration}s linear, top ${duration}s linear`;
+  player.style.left = (x / w * 100) + '%';
+  player.style.top = (y / h * 100) + '%';
+
+  zoneMoving = true;
+  clearTimeout(zoneMoveTimeout);
+  zoneMoveTimeout = setTimeout(() => {
+    zoneMoving = false;
+    checkNodeProximity(x, y);
+  }, duration * 1000 + 30);
+}
+
+function checkNodeProximity(x, y) {
+  const sceneEl = document.getElementById('zone-scene');
+  const w = sceneEl.clientWidth, h = sceneEl.clientHeight;
+  const radius = 34;
+
+  const cNode = document.getElementById('zone-node-creature');
+  const cx = (parseFloat(cNode.style.left) / 100) * w;
+  const cy = (parseFloat(cNode.style.top) / 100) * h;
+  if (Math.hypot(x - cx, y - cy) < radius) {
+    const alreadyOwn = state.collection.find(e => e.creatureId === currentZoneCreature.id);
+    showZoneMenu(currentZone, currentZoneCreature, alreadyOwn);
+    return;
+  }
+
+  const bNode = document.getElementById('zone-node-boss');
+  if (bNode.style.display !== 'none') {
+    const bx = (parseFloat(bNode.style.left) / 100) * w;
+    const by = (parseFloat(bNode.style.top) / 100) * h;
+    if (Math.hypot(x - bx, y - by) < radius) {
+      closePuzzle();
+      startBattle(currentZone);
+    }
+  }
 }
 
 function showZoneMenu(zone, creature, alreadyOwn) {
