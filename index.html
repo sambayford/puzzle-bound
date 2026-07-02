@@ -583,6 +583,15 @@
   .hp-fill.enemy { background: linear-gradient(90deg, #c0392b, #e74c3c); }
   .hp-text { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
   .vs-divider { text-align:center; font-family:'Cinzel',serif; color:var(--border2); margin:8px 0; }
+  .battle-roster { display:flex; gap:6px; justify-content:center; margin-bottom:8px; }
+  .roster-icon {
+    display:flex; align-items:center; justify-content:center;
+    width:26px; height:26px; border-radius:50%;
+    opacity:0.35; filter:grayscale(1);
+    transition: all 0.2s;
+  }
+  .roster-icon.active { opacity:1; filter:none; box-shadow:0 0 0 2px var(--gold); }
+  .roster-icon.ko { opacity:0.15; filter:grayscale(1); }
   .battle-log {
     background: var(--bg);
     border: 1px solid var(--border);
@@ -1260,7 +1269,7 @@ const ZONES = [
     creatures:['lumox','pyrix','mosswyn'],
     locked:false,
     puzzleTypes:['sequence','binary'],
-    boss:{ name:'Herbalist Vera', icon:'🧙‍♀️', creature:'stonyx' },
+    boss:{ name:'Herbalist Vera', icon:'🧙‍♀️', creature:'stonyx', team:['mosswyn','lumox','stonyx'] },
     spawn:{ x:50, y:82 },
     nodes:{ creature:{ x:28, y:42 }, boss:{ x:74, y:30 } },
     decor:[
@@ -1277,7 +1286,7 @@ const ZONES = [
     locked:true,
     requires:'forest',
     puzzleTypes:['grid','sequence'],
-    boss:{ name:'Tide Oracle', icon:'🧜', creature:'tidalyn' },
+    boss:{ name:'Tide Oracle', icon:'🧜', creature:'tidalyn', team:['glimmer','aquox','tidalyn'] },
     spawn:{ x:50, y:85 },
     nodes:{ creature:{ x:24, y:38 }, boss:{ x:76, y:46 } },
     decor:[
@@ -1294,7 +1303,7 @@ const ZONES = [
     locked:true,
     requires:'coast',
     puzzleTypes:['grid','sequence'],
-    boss:{ name:'Pyromaster Dax', icon:'🧟', creature:'embrix' },
+    boss:{ name:'Pyromaster Dax', icon:'🧟', creature:'embrix', team:['vexwing','torchid','embrix'] },
     spawn:{ x:50, y:84 },
     nodes:{ creature:{ x:30, y:46 }, boss:{ x:72, y:34 } },
     decor:[
@@ -1311,7 +1320,7 @@ const ZONES = [
     locked:true,
     requires:'volcano',
     puzzleTypes:['grid','sequence'],
-    boss:{ name:'The Void Sage', icon:'👁️', creature:'cryston' },
+    boss:{ name:'The Void Sage', icon:'👁️', creature:'cryston', team:['zephrix','stonyx','cryston'] },
     spawn:{ x:50, y:85 },
     nodes:{ creature:{ x:26, y:40 }, boss:{ x:74, y:38 } },
     decor:[
@@ -1986,31 +1995,48 @@ function closeDetail() {
 
 let battleState = null;
 
+function buildCombatant(creatureId, entry) {
+  const def = CREATURES.find(c => c.id === creatureId);
+  const maxHp = def.hp + (entry.level - 1) * 3;
+  return {
+    id: creatureId,
+    def,
+    entry,
+    hp: maxHp,
+    maxHp,
+    atk: def.atk + (entry.level - 1),
+  };
+}
+
+function buildEnemy(creatureId, idx) {
+  const def = CREATURES.find(c => c.id === creatureId);
+  const maxHp = def.hp + 5 + idx * 4;
+  return {
+    def,
+    hp: maxHp,
+    maxHp,
+    atk: def.atk + 2 + idx,
+  };
+}
+
 function startBattle(zone) {
   if (state.party.length === 0) { showToast('You need creatures in your party!'); return; }
 
-  const myCreatureId = state.party[0];
-  const myCEntry = state.collection.find(e => e.creatureId === myCreatureId);
-  const myC = CREATURES.find(c => c.id === myCreatureId);
+  const myTeam = state.party.map(id => {
+    const entry = state.collection.find(e => e.creatureId === id);
+    return buildCombatant(id, entry);
+  });
 
-  const enemyCDef = CREATURES.find(c => c.id === zone.boss.creature);
+  const enemyTeam = (zone.boss.team || [zone.boss.creature]).map((id, i) => buildEnemy(id, i));
 
   battleState = {
     zone,
-    mine: {
-      id: myCreatureId,
-      def: myC,
-      entry: myCEntry,
-      hp: myC.hp + (myCEntry.level - 1) * 3,
-      maxHp: myC.hp + (myCEntry.level - 1) * 3,
-      atk: myC.atk + myCEntry.level - 1,
-    },
-    enemy: {
-      def: enemyCDef,
-      hp: enemyCDef.hp + 5,
-      maxHp: enemyCDef.hp + 5,
-      atk: enemyCDef.atk + 2,
-    },
+    myTeam,
+    myIndex: 0,
+    mine: myTeam[0],
+    enemyTeam,
+    enemyIndex: 0,
+    enemy: enemyTeam[0],
     phase: 'player',   // 'player' | 'puzzle' | 'enemy' | 'end'
     puzzleSolved: false,
     turn: 1,
@@ -2022,6 +2048,13 @@ function startBattle(zone) {
   setBattleLog(`${zone.boss.name} challenges you! ${zone.boss.icon}`);
 }
 
+function renderRoster(team, activeIndex) {
+  if (team.length <= 1) return '';
+  return `<div class="battle-roster">${team.map((m, i) =>
+    `<span class="roster-icon ${i === activeIndex ? 'active' : ''} ${m.hp <= 0 ? 'ko' : ''}">${creatureSVG(m.def.id, 20)}</span>`
+  ).join('')}</div>`;
+}
+
 function renderBattleArena() {
   const bs = battleState;
   const mHpPct = Math.max(0, (bs.mine.hp / bs.mine.maxHp) * 100);
@@ -2029,6 +2062,7 @@ function renderBattleArena() {
 
   document.getElementById('battle-arena').innerHTML = `
     <div class="battle-phase-title">Turn ${bs.turn} — ${bs.phase === 'player' ? 'Your Move' : bs.phase === 'enemy' ? 'Enemy Turn' : bs.phase === 'puzzle' ? 'Puzzle Phase' : 'Battle Over'}</div>
+    ${renderRoster(bs.myTeam, bs.myIndex)}
     <div class="combatant">
       <div class="combatant-icon" id="my-icon">${creatureSVG(bs.mine.def.id, 50)}</div>
       <div class="combatant-info">
@@ -2046,6 +2080,7 @@ function renderBattleArena() {
         <div class="hp-text">${bs.enemy.hp} / ${bs.enemy.maxHp} HP</div>
       </div>
     </div>
+    ${renderRoster(bs.enemyTeam, bs.enemyIndex)}
     <div class="battle-log" id="battle-log"></div>
   `;
   renderBattleActions();
@@ -2111,6 +2146,31 @@ function startBattlePuzzle() {
   `;
 }
 
+function advanceEnemy() {
+  const bs = battleState;
+  const fallenName = bs.enemy.def.name;
+  bs.enemyIndex++;
+  if (bs.enemyIndex >= bs.enemyTeam.length) return false;
+  bs.enemy = bs.enemyTeam[bs.enemyIndex];
+  bs.phase = 'player';
+  bs.turn++;
+  setBattleLog(`${fallenName} is defeated! ${bs.zone.boss.name} sends out ${bs.enemy.def.name}!`);
+  showToast(`💥 ${fallenName} defeated!`);
+  return true;
+}
+
+function advanceMine() {
+  const bs = battleState;
+  const fallenName = bs.mine.def.name;
+  bs.myIndex++;
+  if (bs.myIndex >= bs.myTeam.length) return false;
+  bs.mine = bs.myTeam[bs.myIndex];
+  bs.phase = 'player';
+  setBattleLog(`${fallenName} is down! ${bs.mine.def.name} steps in!`);
+  showToast(`${bs.mine.def.name} enters the battle!`);
+  return true;
+}
+
 function battlePuzzleAnswer(chosen, answer) {
   const bs = battleState;
   const area = document.getElementById('battle-puzzle-area');
@@ -2127,8 +2187,16 @@ function battlePuzzleAnswer(chosen, answer) {
     animateDamage('my-icon');
   }
 
-  if (bs.enemy.hp <= 0) { battleVictory(); return; }
-  if (bs.mine.hp <= 0) { battleDefeat(); return; }
+  if (bs.enemy.hp <= 0) {
+    if (advanceEnemy()) { renderBattleArena(); return; }
+    battleVictory();
+    return;
+  }
+  if (bs.mine.hp <= 0) {
+    if (advanceMine()) { renderBattleArena(); return; }
+    battleDefeat();
+    return;
+  }
 
   bs.phase = 'enemy';
   bs.turn++;
@@ -2145,6 +2213,7 @@ function enemyTurn() {
   animateDamage('my-icon');
 
   if (bs.mine.hp <= 0) {
+    if (advanceMine()) { renderBattleArena(); return; }
     battleDefeat();
   } else {
     bs.phase = 'player';
@@ -2170,7 +2239,7 @@ function battleVictory() {
     <div style="text-align:center;margin-top:12px;">
       <div style="font-size:2rem;margin-bottom:8px;">🏆</div>
       <div style="font-family:'Cinzel',serif;color:var(--gold);font-size:1rem;">Victory!</div>
-      <div style="color:var(--muted);font-size:0.85rem;margin-top:6px;">+30 Essence · ${bs.zone.name} cleared!</div>
+      <div style="color:var(--muted);font-size:0.85rem;margin-top:6px;">${bs.zone.boss.name}'s whole team is defeated · +30 Essence · ${bs.zone.name} cleared!</div>
     </div>
   `;
   document.getElementById('battle-puzzle-area').innerHTML = `
@@ -2203,7 +2272,7 @@ function battleDefeat() {
     <div style="text-align:center;margin-top:12px;">
       <div style="font-size:2rem;margin-bottom:8px;">💀</div>
       <div style="font-family:'Cinzel',serif;color:var(--red);font-size:1rem;">Defeated...</div>
-      <div style="color:var(--muted);font-size:0.85rem;margin-top:6px;">Train more creatures and try again.</div>
+      <div style="color:var(--muted);font-size:0.85rem;margin-top:6px;">Your whole party has fallen. Train more creatures and try again.</div>
     </div>
   `;
   document.getElementById('battle-puzzle-area').innerHTML = `
