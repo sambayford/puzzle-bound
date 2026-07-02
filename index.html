@@ -2175,10 +2175,25 @@ function battleVictory() {
   `;
   document.getElementById('battle-puzzle-area').innerHTML = `
     <div style="text-align:center;margin-top:12px;">
-      <button class="btn btn-success" onclick="closeBattle()">Return to Map</button>
+      <p style="color:var(--muted);font-size:0.85rem;margin-bottom:10px;">Capture ${bs.enemy.def.name}?</p>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-success" onclick="captureBossCreature()">🎯 Capture ${bs.enemy.def.name}</button>
+        <button class="btn" onclick="closeBattle()">Skip & Return to Map</button>
+      </div>
     </div>
   `;
   showToast('⚔️ Battle Won! +30 Essence');
+}
+
+function captureBossCreature() {
+  const bs = battleState;
+  if (!bs) return;
+  captureCreature(bs.enemy.def);
+  document.getElementById('battle-puzzle-area').innerHTML = `
+    <div style="text-align:center;margin-top:12px;">
+      <button class="btn btn-success" onclick="closeBattle()">Return to Map</button>
+    </div>
+  `;
 }
 
 function battleDefeat() {
