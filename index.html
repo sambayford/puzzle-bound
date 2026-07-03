@@ -2214,6 +2214,7 @@ function renderBattleActions() {
 function startBattlePuzzle() {
   const bs = battleState;
   bs.phase = 'puzzle';
+  bs.puzzleStartTime = Date.now();
   renderBattleArena();
 
   const area = document.getElementById('battle-puzzle-area');
@@ -2239,7 +2240,8 @@ function startBattlePuzzle() {
   area.innerHTML = `
     <div style="background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:16px;margin-top:8px;">
       <div style="font-family:'Cinzel',serif;font-size:0.8rem;color:var(--gold);margin-bottom:8px;text-align:center;">⚡ PUZZLE STRIKE ⚡</div>
-      <p style="text-align:center;font-size:0.8rem;color:var(--muted);margin-bottom:10px;font-style:italic;">Hint: ${hint}</p>
+      <p style="text-align:center;font-size:0.8rem;color:var(--muted);margin-bottom:4px;font-style:italic;">Hint: ${hint}</p>
+      <p style="text-align:center;font-size:0.7rem;color:var(--gold2);margin-bottom:10px;">The faster you answer, the harder you hit!</p>
       <div class="battle-seq">
         ${seq.map(n => `<div class="seq-cell ${n==='?'?'answer-slot':''}">${n}</div>`).join('')}
       </div>
@@ -2278,12 +2280,21 @@ function advanceMine() {
 function battlePuzzleAnswer(chosen, answer) {
   const bs = battleState;
   const area = document.getElementById('battle-puzzle-area');
+  const elapsed = (Date.now() - (bs.puzzleStartTime || Date.now())) / 1000;
+
   if (chosen === answer) {
-    const bonus = Math.floor(bs.mine.atk * 1.5) + Math.floor(Math.random() * 6);
+    let mult, tier;
+    if (elapsed < 2)      { mult = 2.0; tier = '⚡ Lightning Fast'; }
+    else if (elapsed < 4) { mult = 1.5; tier = '🎯 Quick'; }
+    else if (elapsed < 7) { mult = 1.0; tier = '✓ Steady'; }
+    else                  { mult = 0.6; tier = '🐢 Slow'; }
+
+    const base = Math.floor(bs.mine.atk * 1.5) + Math.floor(Math.random() * 6);
+    const bonus = Math.max(1, Math.floor(base * mult));
     bs.enemy.hp = Math.max(0, bs.enemy.hp - bonus);
-    setBattleLog(`🧩 PUZZLE STRIKE! ${bs.mine.def.name} deals ${bonus} bonus damage!`);
+    setBattleLog(`🧩 PUZZLE STRIKE! ${tier} (x${mult.toFixed(1)}) — ${bs.mine.def.name} deals ${bonus} damage!`);
     animateDamage('enemy-icon');
-    showToast('🎯 Puzzle Solved! +' + bonus + ' dmg!');
+    showToast(`${tier}! +${bonus} dmg (x${mult.toFixed(1)})`);
   } else {
     const penalty = Math.floor(bs.mine.atk * 0.3);
     bs.mine.hp = Math.max(0, bs.mine.hp - penalty);
