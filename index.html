@@ -2235,6 +2235,7 @@ function battleVictory() {
     if (bNode) bNode.style.display = 'none';
   }
 
+  renderBattleArena();
   document.getElementById('battle-arena').innerHTML += `
     <div style="text-align:center;margin-top:12px;">
       <div style="font-size:2rem;margin-bottom:8px;">🏆</div>
@@ -2268,6 +2269,7 @@ function captureBossCreature() {
 function battleDefeat() {
   const bs = battleState;
   bs.phase = 'end';
+  renderBattleArena();
   document.getElementById('battle-arena').innerHTML += `
     <div style="text-align:center;margin-top:12px;">
       <div style="font-size:2rem;margin-bottom:8px;">💀</div>
