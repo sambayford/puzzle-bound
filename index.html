@@ -1247,6 +1247,67 @@ function creatureSVG(id, size=64) {
   return `<div style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;">${svg}</div>`;
 }
 
+// Humanoid boss sprites, keyed by biome — every Puzzlemaster in a given
+// biome shares this same "form", only their name/roster is procedural.
+const BOSS_SVGS = {
+  forest: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <!-- Herbalist: green hooded robe, wooden staff -->
+    <line x1="18" y1="70" x2="14" y2="20" stroke="#8a6a3a" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="14" cy="18" r="5" fill="#7bc86c" opacity="0.85"/>
+    <path d="M28,72 Q26,44 40,40 Q54,44 52,72 Z" fill="#2f5233"/>
+    <path d="M31,72 Q30,50 40,46 Q50,50 49,72 Z" fill="#3d6b42"/>
+    <path d="M22,42 Q40,26 58,42 Q54,34 40,30 Q26,34 22,42 Z" fill="#264a2a"/>
+    <ellipse cx="40" cy="38" rx="10" ry="11" fill="#e0b088"/>
+    <path d="M30,32 Q40,24 50,32 Q48,30 40,29 Q32,30 30,32 Z" fill="#264a2a"/>
+    <ellipse cx="36" cy="38" rx="1.6" ry="2" fill="#2b1a10"/>
+    <ellipse cx="44" cy="38" rx="1.6" ry="2" fill="#2b1a10"/>
+    <path d="M35,43 Q40,45 45,43" stroke="#8a5a3a" stroke-width="1.2" fill="none"/>
+    <circle cx="40" cy="58" r="4" fill="#c9a84c" opacity="0.7"/>
+  </svg>`,
+  coast: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <!-- Tide Oracle: flowing blue robe, shell crown, trident -->
+    <line x1="62" y1="70" x2="66" y2="16" stroke="#a8c8d8" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M66,16 L60,8 M66,16 L72,8 M66,16 L66,6" stroke="#a8c8d8" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <path d="M27,72 Q24,42 40,38 Q56,42 53,72 Z" fill="#123449"/>
+    <path d="M30,72 Q29,48 40,44 Q51,48 50,72 Z" fill="#1976d2" opacity="0.85"/>
+    <ellipse cx="40" cy="36" rx="10" ry="11" fill="#dbb98f"/>
+    <path d="M28,30 L34,20 L38,29 L42,19 L46,29 L50,20 L52,30 Q40,24 28,30 Z" fill="#5aa0c0"/>
+    <ellipse cx="36" cy="36" rx="1.6" ry="2" fill="#0d2436"/>
+    <ellipse cx="44" cy="36" rx="1.6" ry="2" fill="#0d2436"/>
+    <path d="M34,41 Q40,44 46,41" stroke="#2d5a6a" stroke-width="1.2" fill="none"/>
+    <ellipse cx="40" cy="58" rx="5" ry="4" fill="#7bd0e0" opacity="0.6"/>
+  </svg>`,
+  volcano: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <!-- Pyromaster: ember cloak, flame-wreathed mask -->
+    <path d="M14,68 Q20,40 34,32 L30,50 Q22,58 20,68 Z" fill="#e67e22" opacity="0.85"/>
+    <path d="M66,68 Q60,40 46,32 L50,50 Q58,58 60,68 Z" fill="#e67e22" opacity="0.85"/>
+    <path d="M26,72 Q24,44 40,40 Q56,44 54,72 Z" fill="#22100c"/>
+    <path d="M29,72 Q28,50 40,46 Q52,50 51,72 Z" fill="#c0392b" opacity="0.85"/>
+    <ellipse cx="40" cy="37" rx="10" ry="11" fill="#3a2018"/>
+    <path d="M27,30 Q40,20 53,30 Q48,26 40,25 Q32,26 27,30 Z" fill="#e67e22"/>
+    <circle cx="36" cy="38" r="2.2" fill="#f0d080"/>
+    <circle cx="44" cy="38" r="2.2" fill="#f0d080"/>
+    <path d="M32,24 Q34,16 30,10 M40,22 Q42,14 38,8 M48,24 Q50,16 46,10" stroke="#f0a020" stroke-width="1.5" fill="none" opacity="0.8"/>
+  </svg>`,
+  crystal: `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <!-- Void Sage: dark hooded robe, single glowing eye, crystal shards -->
+    <polygon points="16,50 20,36 24,50 20,60" fill="#b98bff" opacity="0.7"/>
+    <polygon points="60,48 64,34 68,48 64,58" fill="#b98bff" opacity="0.7"/>
+    <path d="M26,72 Q22,42 40,36 Q58,42 54,72 Z" fill="#140f28"/>
+    <path d="M29,72 Q27,50 40,44 Q53,50 51,72 Z" fill="#1a1338"/>
+    <path d="M20,40 Q40,18 60,40 Q52,28 40,26 Q28,28 20,40 Z" fill="#0d0a1c"/>
+    <ellipse cx="40" cy="36" rx="9" ry="8" fill="#0d0a1c"/>
+    <circle cx="40" cy="36" r="3.4" fill="#a06bff"/>
+    <circle cx="40" cy="36" r="1.3" fill="#f0e6ff"/>
+    <circle cx="40" cy="36" r="6" fill="none" stroke="#a06bff" stroke-width="0.7" opacity="0.5"/>
+  </svg>`,
+};
+
+function bossSVG(biomeId, size=64) {
+  const svg = BOSS_SVGS[biomeId] || `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="40" r="30" fill="#3d2f6e"/><text x="40" y="46" text-anchor="middle" font-size="24" fill="#f0d080">?</text></svg>`;
+  return `<div style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;">${svg}</div>`;
+}
+
 const CREATURES = [
   { id:'lumox',   name:'Lumox',   type:'arcane', hp:28, atk:10, flavor:'A moth drawn to ancient runes, its wings pulse with stored equations.', lore:'Sequence Adept' },
   { id:'pyrix',   name:'Pyrix',   type:'flame',  hp:30, atk:12, flavor:'A fox of ember and logic, it ignites only for those who understand order.', lore:'Pattern Weaver' },
@@ -1559,7 +1620,7 @@ function renderZoneScene(zone) {
     bNode.style.left = zone.nodes.boss.x + '%';
     bNode.style.top = zone.nodes.boss.y + '%';
     bNode.style.display = 'flex';
-    bNode.innerHTML = `<div class="zone-node-icon">${zone.boss.icon}</div><div class="zone-node-label">${zone.boss.name}</div>`;
+    bNode.innerHTML = `<div class="zone-node-icon">${bossSVG(zone.biomeId || zone.id, 44)}</div><div class="zone-node-label">${zone.boss.name}</div>`;
     bNode.onclick = (e) => { e.stopPropagation(); walkToNode(bNode); };
   } else {
     bNode.style.display = 'none';
