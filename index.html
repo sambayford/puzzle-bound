@@ -1331,9 +1331,50 @@ const ZONES = [
   },
 ];
 
-// ════════════════════════════════════════
-//  STATE
-// ════════════════════════════════════════
+// ── INFINITE PROCEDURAL LEVELS ──
+// The 4 zones above double as biome templates (style, decor, creature pool,
+// puzzle types, boss roster). Levels 5+ are randomly generated, each
+// reusing one of the 4 biomes at random, with a fresh procedural boss and
+// scaling difficulty.
+const BIOME_ZONES = ZONES.slice(0, 4);
+const BOSS_FIRST_NAMES = ['Rowan','Tessa','Bryn','Coen','Mira','Ash','Kade','Wren','Sable','Orin','Vale','Juno'];
+const BOSS_TITLES = ['the Warden','the Keeper','the Adept','the Sentinel','the Unbound','the Relentless','the Silent','the Exile','the Puzzlebound','the Riddler'];
+
+function generateProceduralZone(levelNum) {
+  const biome = BIOME_ZONES[Math.floor(Math.random() * BIOME_ZONES.length)];
+  const prevZone = ZONES[ZONES.length - 1];
+  const bossName = `${BOSS_FIRST_NAMES[Math.floor(Math.random() * BOSS_FIRST_NAMES.length)]} ${BOSS_TITLES[Math.floor(Math.random() * BOSS_TITLES.length)]}`;
+  return {
+    id: `level-${levelNum}`,
+    name: `${biome.name} — Level ${levelNum}`,
+    icon: biome.icon,
+    biomeId: biome.id,
+    desc: `A deeper trial through the ${biome.name.toLowerCase()}. The puzzles grow sharper here.`,
+    creatures: biome.creatures,
+    locked: true,
+    requires: prevZone.id,
+    puzzleTypes: biome.puzzleTypes,
+    boss: { name: bossName, icon: biome.boss.icon, creature: biome.boss.creature, team: biome.boss.team },
+    spawn: biome.spawn,
+    nodes: biome.nodes,
+    decor: biome.decor,
+    levelScale: levelNum - BIOME_ZONES.length,
+  };
+}
+
+// Keeps exactly one locked "preview" level generated beyond the current
+// frontier, cascading forward as each level is cleared — infinite levels
+// without pre-building an unbounded array up front.
+function ensureLevelsGenerated() {
+  while (true) {
+    const last = ZONES[ZONES.length - 1];
+    const lastAccessible = !last.locked || state.clearedZones.includes(last.requires);
+    if (!lastAccessible) break;
+    ZONES.push(generateProceduralZone(ZONES.length + 1));
+  }
+}
+
+
 
 const SAVE_KEY = 'puzzlebound_save_v1';
 
@@ -1440,6 +1481,7 @@ function updateHeader() {
 // ════════════════════════════════════════
 
 function renderZones() {
+  ensureLevelsGenerated();
   const grid = document.getElementById('zones-grid');
   grid.innerHTML = '';
   ZONES.forEach(zone => {
@@ -1488,7 +1530,7 @@ function leaveZoneScene() {
 function renderZoneScene(zone) {
   document.getElementById('zone-scene-title').textContent = zone.name;
   const sceneEl = document.getElementById('zone-scene');
-  sceneEl.dataset.zone = zone.id;
+  sceneEl.dataset.zone = zone.biomeId || zone.id;
 
   // Decor
   const decorLayer = document.getElementById('zone-scene-decor');
@@ -2008,14 +2050,15 @@ function buildCombatant(creatureId, entry) {
   };
 }
 
-function buildEnemy(creatureId, idx) {
+function buildEnemy(creatureId, idx, levelScale) {
   const def = CREATURES.find(c => c.id === creatureId);
-  const maxHp = def.hp + 5 + idx * 4;
+  const scale = levelScale || 0;
+  const maxHp = def.hp + 5 + idx * 4 + scale * 6;
   return {
     def,
     hp: maxHp,
     maxHp,
-    atk: def.atk + 2 + idx,
+    atk: def.atk + 2 + idx + Math.floor(scale * 1.5),
   };
 }
 
@@ -2027,7 +2070,7 @@ function startBattle(zone) {
     return buildCombatant(id, entry);
   });
 
-  const enemyTeam = (zone.boss.team || [zone.boss.creature]).map((id, i) => buildEnemy(id, i));
+  const enemyTeam = (zone.boss.team || [zone.boss.creature]).map((id, i) => buildEnemy(id, i, zone.levelScale));
 
   battleState = {
     zone,
