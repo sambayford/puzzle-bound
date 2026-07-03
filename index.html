@@ -210,6 +210,50 @@
   .zone-scene-title { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1rem; letter-spacing: 0.05em; }
   .zone-scene-hint { text-align: center; color: var(--muted); font-size: 0.8rem; font-style: italic; }
 
+  #minimap-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(5,3,15,0.92);
+    z-index: 220;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  #minimap-overlay.open { display: flex; }
+  #minimap-panel {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 20px;
+    max-width: 340px;
+    width: 100%;
+    box-shadow: 0 0 60px rgba(123,79,207,0.3);
+    text-align: center;
+  }
+  .minimap-title { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1rem; margin-bottom: 12px; }
+  #minimap-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+  .minimap-cell {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    background: #050308;
+    border: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem;
+    position: relative;
+  }
+  .minimap-cell.visited { border-color: var(--border); }
+  .minimap-cell.current { outline: 2px solid var(--gold); outline-offset: -1px; }
+  .minimap-cell .minimap-tag {
+    position: absolute; bottom: 1px; right: 2px; font-size: 0.55rem;
+  }
+  .minimap-legend { font-size: 0.7rem; color: var(--muted); margin-bottom: 10px; }
+
   .zone-scene {
     position: relative;
     flex: 1;
@@ -790,17 +834,26 @@
 
   <div id="zone-scene-screen" class="screen">
     <div id="zone-scene-header">
-      <button class="btn" onclick="leaveZoneScene()">← Map</button>
+      <button class="btn" onclick="leaveZoneScene()">🚪 Exit</button>
       <div class="zone-scene-title" id="zone-scene-title"></div>
+      <button class="btn" onclick="openMinimap()">🗺️ Map</button>
     </div>
     <div id="zone-scene" class="zone-scene" onclick="zoneSceneClick(event)">
       <div class="zone-ground"></div>
       <div id="zone-scene-decor"></div>
-      <div id="zone-node-creature" class="zone-node"></div>
-      <div id="zone-node-boss" class="zone-node boss-node"></div>
+      <div id="zone-nodes"></div>
       <div id="zone-player">🧍</div>
     </div>
-    <p class="zone-scene-hint">Tap anywhere to walk. Walk up to a glowing spot to interact.</p>
+    <p class="zone-scene-hint">Tap anywhere to walk. Walk to a screen edge to move on.</p>
+  </div>
+
+  <div id="minimap-overlay">
+    <div id="minimap-panel">
+      <div class="minimap-title" id="minimap-title"></div>
+      <div id="minimap-grid"></div>
+      <p class="minimap-legend">📍 you · 👑 boss · 🐾 creatures · ⬛ unexplored</p>
+      <button class="btn" onclick="closeMinimap()">Close</button>
+    </div>
   </div>
 
   <div id="collection-screen" class="screen" style="flex:1;overflow-y:auto;">
@@ -1332,7 +1385,6 @@ const ZONES = [
     puzzleTypes:['sequence','binary'],
     boss:{ name:'Herbalist Vera', icon:'🧙‍♀️', creature:'stonyx', team:['mosswyn','lumox','stonyx'] },
     spawn:{ x:50, y:82 },
-    nodes:{ creature:{ x:28, y:42 }, boss:{ x:74, y:30 } },
     decor:[
       {type:'tree', x:10, y:20, s:1.1}, {type:'tree', x:20, y:34, s:1.4},
       {type:'tree', x:6, y:52, s:1.2}, {type:'tree', x:88, y:16, s:1.1},
@@ -1349,7 +1401,6 @@ const ZONES = [
     puzzleTypes:['grid','sequence'],
     boss:{ name:'Tide Oracle', icon:'🧜', creature:'tidalyn', team:['glimmer','aquox','tidalyn'] },
     spawn:{ x:50, y:85 },
-    nodes:{ creature:{ x:24, y:38 }, boss:{ x:76, y:46 } },
     decor:[
       {type:'wave', x:10, y:24, s:1}, {type:'wave', x:50, y:18, s:1.3},
       {type:'wave', x:82, y:26, s:0.9}, {type:'wave', x:30, y:56, s:1.1},
@@ -1366,7 +1417,6 @@ const ZONES = [
     puzzleTypes:['grid','sequence'],
     boss:{ name:'Pyromaster Dax', icon:'🧟', creature:'embrix', team:['vexwing','torchid','embrix'] },
     spawn:{ x:50, y:84 },
-    nodes:{ creature:{ x:30, y:46 }, boss:{ x:72, y:34 } },
     decor:[
       {type:'lava', x:20, y:30, s:1.2}, {type:'lava', x:76, y:56, s:1},
       {type:'ember', x:35, y:20, s:1}, {type:'ember', x:60, y:14, s:0.8},
@@ -1383,7 +1433,6 @@ const ZONES = [
     puzzleTypes:['grid','sequence'],
     boss:{ name:'The Void Sage', icon:'👁️', creature:'cryston', team:['zephrix','stonyx','cryston'] },
     spawn:{ x:50, y:85 },
-    nodes:{ creature:{ x:26, y:40 }, boss:{ x:74, y:38 } },
     decor:[
       {type:'crystal', x:12, y:24, s:1.2}, {type:'crystal', x:24, y:52, s:0.9},
       {type:'crystal', x:88, y:20, s:1.1}, {type:'crystal', x:80, y:60, s:1},
@@ -1417,7 +1466,6 @@ function generateProceduralZone(levelNum) {
     puzzleTypes: biome.puzzleTypes,
     boss: { name: bossName, icon: biome.boss.icon, creature: biome.boss.creature, team: biome.boss.team },
     spawn: biome.spawn,
-    nodes: biome.nodes,
     decor: biome.decor,
     levelScale: levelNum - BIOME_ZONES.length,
   };
@@ -1563,40 +1611,96 @@ function renderZones() {
 
 let currentZone = null;
 let currentZoneCreature = null;
+let currentZoneCreatureNodeEl = null;
+let currentBossNodeEl = null;
 let zoneMoving = false;
 let zoneMoveTimeout = null;
 
+const GRID_SIZE = 5;
+const BIOME_COLORS = { forest:'#2f5233', coast:'#1976d2', volcano:'#c0392b', crystal:'#6a3fc0' };
+
+function initZoneGrid(zone) {
+  const startRow = 2, startCol = 2;
+  const cells = [];
+  for (let r = 0; r < GRID_SIZE; r++) {
+    const row = [];
+    for (let c = 0; c < GRID_SIZE; c++) {
+      row.push({
+        visited: false,
+        creatureCount: Math.floor(Math.random() * 4), // 0-3
+        isBoss: false,
+        decor: null,
+      });
+    }
+    cells.push(row);
+  }
+  let br, bc;
+  do { br = Math.floor(Math.random() * GRID_SIZE); bc = Math.floor(Math.random() * GRID_SIZE); }
+  while (br === startRow && bc === startCol);
+  cells[br][bc].isBoss = true;
+  cells[br][bc].creatureCount = 0;
+  cells[startRow][startCol].visited = true;
+
+  zone.grid = { cells, playerRow: startRow, playerCol: startCol, bossRow: br, bossCol: bc };
+}
+
+function generateCellDecor(zone) {
+  return (zone.decor || []).map(d => ({
+    type: d.type,
+    x: Math.min(92, Math.max(8, d.x + (Math.random() * 20 - 10))),
+    y: Math.min(85, Math.max(15, d.y + (Math.random() * 20 - 10))),
+    s: (d.s || 1) * (0.85 + Math.random() * 0.3),
+  }));
+}
+
+function randomNodeSpot(taken) {
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const x = 22 + Math.random() * 56;
+    const y = 30 + Math.random() * 45;
+    if (taken.every(p => Math.hypot(p.x - x, p.y - y) > 18)) return { x, y };
+  }
+  return { x: 22 + Math.random() * 56, y: 30 + Math.random() * 45 };
+}
+
 function enterZone(zone) {
-  // Pick random creature from zone
-  const cId = zone.creatures[Math.floor(Math.random() * zone.creatures.length)];
-  currentZoneCreature = CREATURES.find(c => c.id === cId);
+  if (!zone.grid) initZoneGrid(zone);
   currentZone = zone;
-  renderZoneScene(zone);
 
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('zone-scene-screen').classList.add('active');
+
+  renderGridScreen(zone, zone.grid.playerRow, zone.grid.playerCol, 'spawn');
 }
 
 function leaveZoneScene() {
   currentZone = null;
   currentZoneCreature = null;
+  currentZoneCreatureNodeEl = null;
+  currentBossNodeEl = null;
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('map-screen').classList.add('active');
   document.querySelectorAll('#tab-nav .nav-btn').forEach((b,i) => b.classList.toggle('active', i === 0));
   renderZones();
 }
 
-// ── ZONE SCENE (illustrated explorable area) ──
+// ── ZONE SCENE (illustrated explorable 5×5 grid) ──
 
-function renderZoneScene(zone) {
-  document.getElementById('zone-scene-title').textContent = zone.name;
+function renderGridScreen(zone, row, col, entryDir) {
+  const grid = zone.grid;
+  grid.playerRow = row;
+  grid.playerCol = col;
+  const cell = grid.cells[row][col];
+  cell.visited = true;
+  if (!cell.decor) cell.decor = generateCellDecor(zone);
+
+  document.getElementById('zone-scene-title').textContent = `${zone.name} (${row + 1},${col + 1})`;
   const sceneEl = document.getElementById('zone-scene');
   sceneEl.dataset.zone = zone.biomeId || zone.id;
 
   // Decor
   const decorLayer = document.getElementById('zone-scene-decor');
   decorLayer.innerHTML = '';
-  (zone.decor || []).forEach(d => {
+  cell.decor.forEach(d => {
     const el = document.createElement('div');
     el.className = `decor decor-${d.type}`;
     el.style.left = d.x + '%';
@@ -1605,32 +1709,52 @@ function renderZoneScene(zone) {
     decorLayer.appendChild(el);
   });
 
-  // Creature node (always present)
-  const cNode = document.getElementById('zone-node-creature');
-  cNode.style.left = zone.nodes.creature.x + '%';
-  cNode.style.top = zone.nodes.creature.y + '%';
-  cNode.style.display = 'flex';
-  cNode.innerHTML = `<div class="zone-node-icon">${creatureSVG(currentZoneCreature.id, 40)}</div><div class="zone-node-label">${currentZoneCreature.name}</div>`;
-  cNode.onclick = (e) => { e.stopPropagation(); walkToNode(cNode); };
+  // Nodes (0-3 wild creatures that respawn each visit, or the hidden boss)
+  const nodesLayer = document.getElementById('zone-nodes');
+  nodesLayer.innerHTML = '';
+  currentZoneCreatureNodeEl = null;
+  currentBossNodeEl = null;
 
-  // Boss node (conditional, same rule as before)
-  const bNode = document.getElementById('zone-node-boss');
-  const bossAvailable = !state.bossDefeated.includes(zone.id) && state.party.length > 0;
-  if (bossAvailable) {
-    bNode.style.left = zone.nodes.boss.x + '%';
-    bNode.style.top = zone.nodes.boss.y + '%';
-    bNode.style.display = 'flex';
+  if (cell.isBoss && !state.bossDefeated.includes(zone.id) && state.party.length > 0) {
+    const spot = { x: 50, y: 45 };
+    const bNode = document.createElement('div');
+    bNode.className = 'zone-node boss-node';
+    bNode.style.left = spot.x + '%';
+    bNode.style.top = spot.y + '%';
     bNode.innerHTML = `<div class="zone-node-icon">${bossSVG(zone.biomeId || zone.id, 44)}</div><div class="zone-node-label">${zone.boss.name}</div>`;
     bNode.onclick = (e) => { e.stopPropagation(); walkToNode(bNode); };
-  } else {
-    bNode.style.display = 'none';
+    nodesLayer.appendChild(bNode);
+  } else if (!cell.isBoss && cell.creatureCount > 0) {
+    const taken = [];
+    for (let i = 0; i < cell.creatureCount; i++) {
+      const spot = randomNodeSpot(taken);
+      taken.push(spot);
+      const cId = zone.creatures[Math.floor(Math.random() * zone.creatures.length)];
+      const cDef = CREATURES.find(c => c.id === cId);
+      const cNode = document.createElement('div');
+      cNode.className = 'zone-node';
+      cNode.style.left = spot.x + '%';
+      cNode.style.top = spot.y + '%';
+      cNode.dataset.creatureId = cId;
+      cNode.innerHTML = `<div class="zone-node-icon">${creatureSVG(cDef.id, 40)}</div><div class="zone-node-label">${cDef.name}</div>`;
+      cNode.onclick = (e) => { e.stopPropagation(); walkToNode(cNode); };
+      nodesLayer.appendChild(cNode);
+    }
   }
 
-  // Reset player to spawn
+  // Position player based on how they entered this screen
   const player = document.getElementById('zone-player');
   player.style.transition = 'none';
-  player.style.left = zone.spawn.x + '%';
-  player.style.top = zone.spawn.y + '%';
+  const pad = 20;
+  let spawnX = 50, spawnY = 82;
+  if (entryDir === 'spawn') {
+    spawnX = zone.spawn.x; spawnY = zone.spawn.y;
+  } else if (entryDir === 'west')  { spawnX = 8;  spawnY = grid.carryY != null ? grid.carryY : 50; }
+  else if (entryDir === 'east')  { spawnX = 92; spawnY = grid.carryY != null ? grid.carryY : 50; }
+  else if (entryDir === 'north') { spawnY = 10; spawnX = grid.carryX != null ? grid.carryX : 50; }
+  else if (entryDir === 'south') { spawnY = 90; spawnX = grid.carryX != null ? grid.carryX : 50; }
+  player.style.left = spawnX + '%';
+  player.style.top = spawnY + '%';
   zoneMoving = false;
 }
 
@@ -1673,34 +1797,101 @@ function movePlayerTo(x, y) {
   clearTimeout(zoneMoveTimeout);
   zoneMoveTimeout = setTimeout(() => {
     zoneMoving = false;
-    checkNodeProximity(x, y);
+    if (!checkNodeProximity(x, y, w, h)) checkEdgeTransition(x, y, w, h);
   }, duration * 1000 + 30);
 }
 
-function checkNodeProximity(x, y) {
-  const sceneEl = document.getElementById('zone-scene');
-  const w = sceneEl.clientWidth, h = sceneEl.clientHeight;
+function checkNodeProximity(x, y, w, h) {
   const radius = 34;
+  const nodes = document.querySelectorAll('#zone-nodes .zone-node');
+  for (const node of nodes) {
+    const nx = (parseFloat(node.style.left) / 100) * w;
+    const ny = (parseFloat(node.style.top) / 100) * h;
+    if (Math.hypot(x - nx, y - ny) >= radius) continue;
 
-  const cNode = document.getElementById('zone-node-creature');
-  const cx = (parseFloat(cNode.style.left) / 100) * w;
-  const cy = (parseFloat(cNode.style.top) / 100) * h;
-  if (Math.hypot(x - cx, y - cy) < radius) {
-    const alreadyOwn = state.collection.find(e => e.creatureId === currentZoneCreature.id);
-    showZoneMenu(currentZone, currentZoneCreature, alreadyOwn);
-    return;
-  }
-
-  const bNode = document.getElementById('zone-node-boss');
-  if (bNode.style.display !== 'none') {
-    const bx = (parseFloat(bNode.style.left) / 100) * w;
-    const by = (parseFloat(bNode.style.top) / 100) * h;
-    if (Math.hypot(x - bx, y - by) < radius) {
+    if (node.classList.contains('boss-node')) {
+      currentBossNodeEl = node;
       closePuzzle();
       startBattle(currentZone);
+    } else {
+      const cId = node.dataset.creatureId;
+      const cDef = CREATURES.find(c => c.id === cId);
+      currentZoneCreature = cDef;
+      currentZoneCreatureNodeEl = node;
+      const alreadyOwn = state.collection.find(e => e.creatureId === cDef.id);
+      showZoneMenu(currentZone, cDef, alreadyOwn);
+    }
+    return true;
+  }
+  return false;
+}
+
+function checkEdgeTransition(x, y, w, h) {
+  const pad = 20;
+  const zone = currentZone;
+  if (!zone) return;
+  const grid = zone.grid;
+  let dr = 0, dc = 0, dir = null;
+  if (x <= pad + 1)      { dc = -1; dir = 'west'; }
+  else if (x >= w - pad - 1) { dc = 1;  dir = 'east'; }
+  else if (y <= pad + 1)      { dr = -1; dir = 'north'; }
+  else if (y >= h - pad - 1) { dr = 1;  dir = 'south'; }
+  if (!dir) return;
+
+  const newRow = grid.playerRow + dr, newCol = grid.playerCol + dc;
+  if (newRow < 0 || newRow >= GRID_SIZE || newCol < 0 || newCol >= GRID_SIZE) {
+    showToast('The path ends here.');
+    return;
+  }
+  grid.carryX = (x / w) * 100;
+  grid.carryY = (y / h) * 100;
+  const enterFrom = dir === 'west' ? 'east' : dir === 'east' ? 'west' : dir === 'north' ? 'south' : 'north';
+  renderGridScreen(zone, newRow, newCol, enterFrom);
+}
+
+// ── MINIMAP (fog of war) ──
+
+function openMinimap() {
+  if (!currentZone) return;
+  renderMinimap();
+  document.getElementById('minimap-overlay').classList.add('open');
+}
+
+function closeMinimap() {
+  document.getElementById('minimap-overlay').classList.remove('open');
+}
+
+function renderMinimap() {
+  const zone = currentZone;
+  const grid = zone.grid;
+  document.getElementById('minimap-title').textContent = zone.name;
+  const mapEl = document.getElementById('minimap-grid');
+  mapEl.innerHTML = '';
+  const color = BIOME_COLORS[zone.biomeId || zone.id] || '#3d2f6e';
+
+  for (let r = 0; r < GRID_SIZE; r++) {
+    for (let c = 0; c < GRID_SIZE; c++) {
+      const cell = grid.cells[r][c];
+      const div = document.createElement('div');
+      div.className = 'minimap-cell';
+      if (r === grid.playerRow && c === grid.playerCol) {
+        div.classList.add('current');
+        div.textContent = '📍';
+      } else if (cell.visited) {
+        div.classList.add('visited');
+        div.style.background = color;
+        if (cell.isBoss) {
+          div.innerHTML = `<span class="minimap-tag">${state.bossDefeated.includes(zone.id) ? '✅' : '👑'}</span>`;
+        } else if (cell.creatureCount > 0) {
+          div.innerHTML = `<span class="minimap-tag">🐾${cell.creatureCount}</span>`;
+        }
+      }
+      mapEl.appendChild(div);
     }
   }
 }
+
+
 
 function showZoneMenu(zone, creature, alreadyOwn) {
   // Build puzzle overlay with zone menu first
@@ -2012,8 +2203,7 @@ function captureCreature(creature) {
   saveGame();
   closePuzzle();
   if (currentZone && currentZoneCreature && currentZoneCreature.id === creature.id) {
-    const cNode = document.getElementById('zone-node-creature');
-    if (cNode) cNode.style.display = 'none';
+    if (currentZoneCreatureNodeEl) currentZoneCreatureNodeEl.style.display = 'none';
   }
 }
 
@@ -2346,8 +2536,7 @@ function battleVictory() {
   renderZones();
   saveGame();
   if (currentZone && currentZone.id === bs.zone.id) {
-    const bNode = document.getElementById('zone-node-boss');
-    if (bNode) bNode.style.display = 'none';
+    if (currentBossNodeEl) currentBossNodeEl.style.display = 'none';
   }
 
   renderBattleArena();
