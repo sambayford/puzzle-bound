@@ -1884,8 +1884,12 @@ function renderMinimap() {
       const cell = grid.cells[r][c];
       const div = document.createElement('div');
       div.className = 'minimap-cell';
-      if (r === grid.playerRow && c === grid.playerCol) {
+      const isPlayer = r === grid.playerRow && c === grid.playerCol;
+      
+      if (isPlayer) {
         div.classList.add('current');
+        div.classList.add('visited');
+        div.style.background = color;
         div.textContent = '📍';
       } else if (cell.visited) {
         div.classList.add('visited');
