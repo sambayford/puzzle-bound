@@ -28,13 +28,20 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  html {
+    height: 100%;
+    overflow: hidden;
+  }
+  
   body {
     background: var(--bg);
     color: var(--text);
     font-family: 'Crimson Pro', serif;
     font-size: 16px;
-    min-height: 100vh;
-    overflow-x: hidden;
+    height: 100vh;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
     background-image:
       radial-gradient(ellipse at 20% 20%, rgba(123,79,207,0.08) 0%, transparent 60%),
       radial-gradient(ellipse at 80% 80%, rgba(74,20,140,0.1) 0%, transparent 60%);
@@ -48,6 +55,14 @@
   /* ── SCREENS ── */
   .screen { display: none; }
   .screen.active { display: flex; flex-direction: column; }
+
+  /* ── MAIN WRAPPER (viewport-fit layout) ── */
+  #main-wrapper {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
 
   /* ── HEADER ── */
   #header {
@@ -802,7 +817,7 @@
 </div>
 
 <!-- ═══════════ MAIN GAME ═══════════ -->
-<div id="main-wrapper" style="display:none;flex-direction:column;min-height:100vh;">
+<div id="main-wrapper" style="display:none;flex-direction:column;">
 
   <!-- Header: title only -->
   <div id="header">
